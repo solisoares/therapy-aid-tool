@@ -1,5 +1,8 @@
 # FOLDERS
-
+dataset/
+backup/
 
 # FILES
+*.weigths
+results.ods
 tmp*
