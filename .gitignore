@@ -9,7 +9,6 @@ imgs/
 
 # FILES
 *.weights
-results.ods
 tmp*
 
 # DARKNET FILES
