@@ -4,5 +4,13 @@ backup/
 
 # FILES
 *.weigths
+imgs/
+*data*/
+
+# FILES
+*.weights
 results.ods
 tmp*
+
+# DARKNET FILES
+bad.list
