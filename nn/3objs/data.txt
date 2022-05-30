@@ -1,0 +1,5 @@
+classes = 3
+train = /home/alexandre/asd-research/nn/3objs/train.txt
+valid = /home/alexandre/asd-research/nn/3objs/valid.txt
+names = /home/alexandre/asd-research/nn/3objs/names.txt
+backup = /home/alexandre/asd-research/nn/3objs/backup
