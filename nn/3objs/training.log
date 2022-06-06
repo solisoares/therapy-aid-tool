@@ -1,0 +1,16 @@
+yolov4
+net.optimized_memory = 0 
+mini_batch = 1, batch = 64, time_steps = 1, train = 1 
+Create CUDA-stream - 0 
+ Create cudnn-handle 0 
+nms_kind: greedynms (1), beta = 0.600000 
+nms_kind: greedynms (1), beta = 0.600000 
+nms_kind: greedynms (1), beta = 0.600000 
+
+ seen 64, trained: 384 K-images (6 Kilo-batches_64) 
+Learning Rate: 0.001, Momentum: 0.949, Decay: 0.0005
+ Detection layer: 139 - type = 28 
+ Detection layer: 150 - type = 28 
+ Detection layer: 161 - type = 28 
+ If error occurs - run training with flag: -dont_show 
+If you want to train from the beginning, then use flag in the end of training command: -clear 
