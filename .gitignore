@@ -1,15 +1,21 @@
 # FOLDERS
 dataset/
 backup/
-
-# FILES
-*.weigths
+weights/
 imgs/
+images/
+labels/
 *data*/
+wandb/
+
 
 # FILES
 *.weights
+*.cache
+*.avi
+*.mp4
 tmp*
+*.pt
 
 # DARKNET FILES
 bad.list
