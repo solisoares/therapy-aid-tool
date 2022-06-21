@@ -1,21 +1,16 @@
 # FOLDERS
-dataset/
-backup/
+__pycache__/
+*/datasets/*
+!*/datasets/README.txt
 weights/
-imgs/
-images/
-labels/
-*data*/
 wandb/
-
 
 # FILES
 *.weights
+*.pt
 *.cache
 *.avi
 *.mp4
 tmp*
-*.pt
+events.out.tfevents*
 
-# DARKNET FILES
-bad.list
