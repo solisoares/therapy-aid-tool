@@ -1,9 +1,10 @@
 # FOLDERS
 __pycache__/
-*/datasets/*
-!*/datasets/README.txt
+datasets/*
+!datasets/README.txt
 weights/
 wandb/
+*test/
 
 # FILES
 *.weights

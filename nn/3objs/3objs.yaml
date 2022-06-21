@@ -1,8 +1,8 @@
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
 path: /home/alexandre/asd-research/nn/3objs  # nn project
-train: images/train  # train images (relative to 'path')
-val: images/val  # val images
-test:  images/test # test images (optional)
+train: datasets/train/images  # train images (relative to 'path')
+val: val.txt  # val images
+test:  test.txt # test images (optional)
 
 # Classes
 nc: 3  # number of classes
