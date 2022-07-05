@@ -1,30 +1,30 @@
-# Detect any input source with a Neural Network (NN) in nn folder
-repo=/home/alexandre/therapy-aid-tool
+# Detect with a Trained NN
 
 # ------------------------------ EDIT ------------------------------
 # NN name (project name, local only)
 nn_name=3objs
 
 # Train run
-train_run=full1
+train_run=TRAIN_EXAMPLE
 
 # Detection run
-detection_run=confth-075_pass-to-parser
+detection_run=DETECTION_EXAMPLE
 
 # Data Path
-data=$repo/nn/$nn_name/$nn_name.yaml
+data=/home/alexandre/therapy-aid-tool/nn/3objs/3objs.yaml
 
-Weights Path
-weights=$repo/nn/$nn_name/runs/train/$train_run/weights/best.pt
+# Weights Path
+weights=/home/alexandre/therapy-aid-tool/nn/3objs/runs/full1/train/weights/best.pt
 
 # Parameters
 imgsz=256
 
 # Source
-source=$repo/sample_data/test_video.avi
-
+source=/home/alexandre/therapy-aid-tool/sample_data/test_video.avi
 
 # --------------------------- DO NOT EDIT --------------------------- 
+repo=/home/alexandre/therapy-aid-tool
+
 # YOLOv5 detect file
 detect=~/yolov5/detect.py
 
@@ -32,9 +32,7 @@ detect=~/yolov5/detect.py
 project=$repo/nn/$nn_name
 
 # Run path (relative to project)
-run=runs/test/$train_run/$detection_run
+run=runs/$train_run/test/$detection_run
 
-
-# ------------------------ EDIT if necessary ------------------------ 
-# Detect It!
+# --------------------------- Detect It! --------------------------- 
 python $detect --data $data --weights $weights --imgsz $imgsz --source $source --project $project --name $run --save-txt --save-conf --conf-th 0.75 # --iou-th 0.5
