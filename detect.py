@@ -1,15 +1,10 @@
-# This file imports yolov5.detect after sys.append the yolov5 folder
-# It assumes yolov5 folder is in the same directory as this project
-
-import sys
-from pathlib import Path
+# This file imports `run` from `yolov5.detect`
+# It assumes yolov5 folder inside this project directory
 
 try:
-    yolov5_location = Path(__file__).parent.parent
-    sys.path.append(str(yolov5_location))
     from yolov5.detect import run
 except:
-    print("Could not find YOLOv5 folder!")
+    print("Could not find YOLOv5! Make sure its folder is inside this project!")
 
 
 def detect(weights, source, data, imgsz,
@@ -45,19 +40,19 @@ def detect(weights, source, data, imgsz,
 
 if __name__ == "__main__":
     # ---------- EDIT ME ----------
-    data = "" # "/home/alexandre/therapy-aid-tool/nn/3objs/3objs.yaml"
-    weights = "" # "/home/alexandre/therapy-aid-tool/nn/3objs/runs/full1/train/weights/best.pt"
-    source = "" # "/home/alexandre/therapy-aid-tool/sample_data/asd5.mp4"
+    data = "/home/alexandre/therapy-aid-tool/nn/3objs/3objs.yaml"
+    weights = "/home/alexandre/therapy-aid-tool/nn/3objs/runs/full1/train/weights/best.pt"
+    source = "/home/alexandre/therapy-aid-tool/sample_data/asd5.mp4"
 
-    imgsz = "" # 256
-    conf_thres = "" # 0.75
-    iou_thres = "" # 0.45
-    save_txt = "" # True
-    save_conf = "" # True
-    exist_ok = "" # True
+    imgsz = 256
+    conf_thres = 0.75
+    iou_thres = 0.45
+    save_txt = True
+    save_conf = True
+    exist_ok = True
 
-    project = "" # "/home/alexandre/therapy-aid-tool/nn/3objs"
-    name = "" # "runs/full1/test/insight"
+    project = "/home/alexandre/therapy-aid-tool/nn/3objs"
+    name = "runs/full1/test/insight"
     # ------------------------------
     detect(weights, source,
            data, imgsz,
