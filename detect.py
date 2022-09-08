@@ -1,6 +1,8 @@
 # This file imports `run` from `yolov5.detect`
 # It assumes yolov5 folder inside this project directory
 
+from configparser import ConfigParser
+
 try:
     from yolov5.detect import run
 except:
@@ -39,21 +41,25 @@ def detect(weights, source, data, imgsz,
 
 
 if __name__ == "__main__":
-    # ---------- EDIT ME ----------
-    data = "/home/alexandre/therapy-aid-tool/nn/3objs/3objs.yaml"
-    weights = "/home/alexandre/therapy-aid-tool/nn/3objs/runs/full1/train/weights/best.pt"
-    source = "/home/alexandre/therapy-aid-tool/sample_data/asd5.mp4"
+    # Get detect.cfg configurations
+    config = ConfigParser()
+    config.read('detect.cfg')
 
-    imgsz = 256
-    conf_thres = 0.75
-    iou_thres = 0.45
-    save_txt = True
-    save_conf = True
-    exist_ok = True
+    data = config.get('load', 'data')
+    weights = config.get('load', 'weights')
+    source = config.get('load', 'source')
 
-    project = "/home/alexandre/therapy-aid-tool/nn/3objs"
-    name = "runs/full1/test/insight"
-    # ------------------------------
+    imgsz = config.getint('options', 'imgsz')
+    conf_thres = config.getfloat('options', 'conf_thres')
+    iou_thres = config.getfloat('options', 'iou_thres')
+    save_txt = config.getboolean('options', 'save_txt')
+    save_conf = config.getboolean('options', 'save_conf')
+    exist_ok = config.getboolean('options', 'exist_ok')
+
+    project = config.get('run-location', 'project')
+    name = config.get('run-location', 'name')
+
+    # Perform detection
     detect(weights, source,
            data, imgsz,
            conf_thres, iou_thres,
