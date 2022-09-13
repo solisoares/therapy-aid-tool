@@ -1,9 +1,6 @@
-# ASD Research
+# Therapy Aid Tool
 
-**A**utism **S**pectrum **D**isorder Research
+## A Web App to aid in therapy sessions of children with Autism Spectrum Disorder (ASD)
 
-<br>
-Hi, my name is Alexandre, and this is my Final Paper Research in Electronics Engineering Bachelor Degree at Federal University of Santa Catarina (UFSC).
-
-<br>
-This research is about early diagnosis and treatment assistance for ASD in children with the help of Machine and Deep Learning Algorithms
+The main goal is to provide a web aplication that
+is capable of filtering out relevant scenes of recorded therapy sessions to assist professionals in their analysis. 

@@ -1,11 +1,16 @@
 from __future__ import annotations
+
+import os
 from pathlib import Path
+
 from stringprep import in_table_a1
 from typing import List
+
 import cv2
-from utils.natural_sort import natural_sort_key
-from utils.filepaths import get_filepaths_from_dir
-import os
+
+from .utils.natural_sort import natural_sort_key
+from .utils.filepaths import get_filepaths_from_dir
+from .utils.video import save_video_labels_template
 
 
 def get_file_preds(filepath: str):
@@ -37,7 +42,7 @@ class BBox:
     def __init__(self, pred: str) -> None:
         self.pred = pred
         if self.pred:
-            (self.cls, self.x, self.y, self.w, self.h) = self.__split_pred()
+            (self.cls, self.x, self.y, self.w, self.h, self.conf) = self.__split_pred()
             self.xmin = self.x - self.w/2
             self.xmax = self.x + self.w/2
             self.ymin = self.y - self.h/2
@@ -131,6 +136,8 @@ def interaction_parser(
     # paths used
     in_video = os.path.join(detection_dir, in_video)
     out_video = os.path.join(detection_dir, out_video)
+
+    save_video_labels_template(in_video)    
     labels = get_filepaths_from_dir(
         os.path.join(detection_dir, 'labels'), key=natural_sort_key)
 
@@ -145,7 +152,7 @@ def interaction_parser(
         ret, frame = cap.read()  # reads 1 frame from video
         if not ret:
             break
-
+        
         preds = get_3preds(get_file_preds(labels[count]))
         td = BBox(preds[0])
         ct = BBox(preds[1])
@@ -182,18 +189,8 @@ def interaction_parser(
         # creating 'q' as the quit button for the video
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        print(count)
         count += 1
 
     cap.release()
     writer.release()
     cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    # --- EDIT ---
-    detection_dir = '/home/alexandre/asd-research/context_parser'
-    in_video = 'test_video.mp4'
-    out_video = 'sample_result_parser.avi'
-    # ------------
-    interaction_parser(detection_dir, in_video, out_video)

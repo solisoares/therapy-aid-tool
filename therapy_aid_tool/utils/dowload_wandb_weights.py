@@ -15,6 +15,6 @@ def download_weights(model_url: str, out_path: Path):
 
 
 if __name__ == "__main__":
-    model_url = ''  # add url here
-    out_path = ''  # add output path
+    model_url = 'solisoares/3objs/run_w9r9wfq2_model:v0'  # add url here
+    out_path = '.'  # add output path
     download_weights(model_url, out_path)
