@@ -3,194 +3,144 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from stringprep import in_table_a1
+from configparser import ConfigParser
+
+from collections import defaultdict
+
 from typing import List
 
+from therapy_aid_tool.utils.video import get_video_frames_count
+
 import cv2
-
-from .utils.natural_sort import natural_sort_key
-from .utils.filepaths import get_filepaths_from_dir
-from .utils.video import save_video_labels_template
+import torch
 
 
-def get_file_preds(filepath: str):
-    """Return a sorted list of a file's predictions
+THIS_FILE = Path(__file__)
+THIS_DIR = THIS_FILE.parent
 
-    Single prediction pattern: cls x y w h [conf]
-    File's predictions:
-        cls x y w h [conf]
-        cls x y w h [conf]
-        ...
-    Function return: ['0 x y w h [conf]',
-                      '1 x y w h [conf]',
-                      '2 x y w h [conf]', 
-                       ... ]
+# Read config file
+CFG_FILE = THIS_DIR / "detect.cfg"
+PARSER = ConfigParser()
+PARSER.read(CFG_FILE)
+
+# Configs
+YOLO_PATH = PARSER.get("yolov5", "path")
+MODEL_WEIGHTS = PARSER.get("yolov5", "weights")
+MODEL_SIZE = PARSER.getint("model", "size")
+
+
+def preds_from_torch_results(results, n_classes):
+    """Return the best predictions for each clas from the torch results of a model
+
+    When a model runs on an image or a video frame, the `results` can return information about
+    x, y, w, h, conf & class values for each prediction made. For a normalized return we look at
+    the `results.xywhn` generated from the model tha comes in form of a List[Tensor].
+
+    This function gets x, y, w, h, conf & class values for each prediction, and for each class,
+    return the prediction with highest conf score.
+
+    results.xywhn example output:
+
+                     x        y        w        h       conf     class
+                 -----------------------------------------------------
+        [tensor([[0.50623, 0.75267, 0.24268, 0.44551, 0.89929, 0.00000],
+                 [0.72019, 0.65559, 0.28206, 0.54527, 0.86348, 1.00000],
+                 [0.60743, 0.81043, 0.08960, 0.21956, 0.83557, 2.00000]],
+                 device='cuda:0')]
 
     Args:
-        filepath (str): Path to file
+        results: Torch predictions for a frame
+        n_classes (int): Number of classes. Used to create template for lacking predictions
 
     Returns:
-        preds (List[str]):  Sorted predictions
+        tuple: Predictions for each class. Key, Value = class, [x,y,w,h,conf] | None
+            Example: ((0, [x, y, w, h, conf]), (1, [x, y, w, h, conf]), (2, None), ...}
     """
+    # Get predictions as list of lists
+    preds = results.xywhn.pop().tolist()
 
-    with open(filepath, 'r') as f:
-        preds = sorted(f.read().splitlines())
-        return preds
+    # All class numbers initiate with a list with -inf values
+    preds_dict = {c: [[float("-inf")] * 5] for c in range(n_classes)}
+
+    # Separete predictions according to class number
+    for *xywhc, c in preds:
+        preds_dict[c].append(xywhc)
+
+    # Get predictions with highest conf for each class
+    for c in range(n_classes):
+        preds_dict[c] = sorted(preds_dict[c], key=lambda x: x[-1])[-1]
+        # the ones that still have -inf turn to None
+        if float("-inf") in preds_dict[c]:
+            preds_dict[c] = None
+
+    return tuple(preds_dict.items())
 
 
 class BBox:
-    def __init__(self, pred: str) -> None:
-        self.pred = pred
-        if self.pred:
-            (self.cls, self.x, self.y, self.w, self.h, self.conf) = self.__split_pred()
-            self.xmin = self.x - self.w/2
-            self.xmax = self.x + self.w/2
-            self.ymin = self.y - self.h/2
-            self.ymax = self.y + self.h/2
-
-    def __split_pred(self):
-        return (float(s) for s in self.pred.split(" "))
+    def __init__(self, pred: List[float]) -> None:
+        self.pred = pred  # One torch prediction is (cls, [x, y, w, h, conf])
+        if self.pred[-1] != None:
+            self.cls, (self.x, self.y, self.w, self.h, self.conf) = pred
+            self.xmin = self.x - self.w / 2
+            self.xmax = self.x + self.w / 2
+            self.ymin = self.y - self.h / 2
+            self.ymax = self.y + self.h / 2
+        else:
+            self.cls, self.x, self.y, self.w, self.h, self.conf = [0]*6
 
     def iou(self, other: BBox):
         pass
 
     def is_overlapping(self, other: BBox):
-        if self.pred and other.pred:
-            return (self.xmin < other.xmax
-                    and self.ymin < other.ymax
-                    and other.xmin < self.xmax
-                    and other.ymin < self.ymax)
+        if self.pred[-1] and other.pred[-1]:
+            return (
+                self.xmin < other.xmax
+                and self.ymin < other.ymax
+                and other.xmin < self.xmax
+                and other.ymin < self.ymax
+            )
         return False
 
 
-def get_3preds(preds: List[str]):
-    """Return 3 predictions even though there
-    is less or more in each predictions file.
+def load_model(conf_th=0.75, iou_th=0.45):
+    """Loads the best trained model
 
     Args:
-        preds (List[str]): File predictions in form of a list o strings
+        conf_th (float, optional): _description_. Defaults to 0.75.
+        iou_th (float, optional): _description_. Defaults to 0.45.
 
     Returns:
-        predictions: 3 predictions, each one with or without ('') content
+        _type_: _description_
     """
-    # Initialize each class prediction
-    pred0, pred1, pred2 = [''], [''], ['']
-    # Get together repeated class predictions
-    for pred in preds:
-        if pred[0] == '0':
-            pred0.append(pred)  # ['0...','0...','0...', ...]
-        if pred[0] == '1':
-            pred1.append(pred)
-        if pred[0] == '2':
-            pred2.append(pred)
-    # Choose prediction with higher conf among repeated ones
-    pred0 = get_higher_conf_pred(pred0)
-    pred1 = get_higher_conf_pred(pred1)
-    pred2 = get_higher_conf_pred(pred2)
-    return pred0, pred1, pred2
-
-
-def get_higher_conf_pred(repeated_preds: List[str]):
-    """Return the prediction with higher conf among repeated ones
-
-    It sorts a list based on the last element that is divided by space
-    due to a lambda function
-
-    Args:
-        repeated_preds (List[str]): A list with repeated predictions
-
-    Returns:
-        [higher_conf_pred]: The higher conf prediction inside a list
-    """
-    sorted_preds = sorted(
-        repeated_preds,
-        key=lambda x: x.split(" ")[-1]
+    # Model
+    model = torch.hub.load(
+        repo_or_dir=YOLO_PATH,
+        model="custom",
+        path=MODEL_WEIGHTS,
+        source="local"
     )
-    higher_conf_pred = sorted_preds[-1]
-    return higher_conf_pred
+    model.conf = conf_th
+    model.iou = iou_th
+    return model
 
 
-# # fp1 = 'labels/test'  # cls: None
-# # fp1 = 'labels/test_video_9.txt'  # cls: 2
-# # fp1 = 'labels/test_video_33.txt'  # cls: 0 0 2
+def interaction_detector(in_video: str, n_classes=3):
 
-# fp1 = 'context_parser/labels/test_video_9.txt'
-# preds = get_3preds(get_file_preds(fp1))
-
-# td = BBox(preds[0])
-# ct = BBox(preds[1])
-# pm = BBox(preds[2])
-# # td,ct,pm = get_3preds(get_file_preds(fp1))
-
-# print(td.is_overlapping(ct))
-# print(td.is_overlapping(pm))
-# print(ct.is_overlapping(pm))
-
-
-# ---------------------------------------------------------
-def interaction_parser(
-        detection_dir: Path,
-        in_video: str,
-        out_video: str):
-
-    # paths used
-    in_video = os.path.join(detection_dir, in_video)
-    out_video = os.path.join(detection_dir, out_video)
-
-    save_video_labels_template(in_video)    
-    labels = get_filepaths_from_dir(
-        os.path.join(detection_dir, 'labels'), key=natural_sort_key)
-
+    model = load_model()
     cap = cv2.VideoCapture(in_video)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    writer = cv2.VideoWriter(
-        out_video, cv2.VideoWriter_fourcc(*'DIVX'), 20, (width, height))
-
-    count = 0
-    while(True):
-        ret, frame = cap.read()  # reads 1 frame from video
-        if not ret:
-            break
+    total_frames = get_video_frames_count(in_video)
+    interactions = defaultdict(list)
+    for i in range(total_frames):
+        _, frame = cap.read()
+        results = model(frame[:, :, ::-1], size=MODEL_SIZE)
+        preds = preds_from_torch_results(results, n_classes)
         
-        preds = get_3preds(get_file_preds(labels[count]))
         td = BBox(preds[0])
         ct = BBox(preds[1])
         pm = BBox(preds[2])
-        td_ct = td.is_overlapping(ct)  # True/False
-        td_pm = td.is_overlapping(pm)
-        ct_pm = ct.is_overlapping(pm)
+        
+        interactions["td_ct"].append(td.is_overlapping(ct))
+        interactions["td_pm"].append(td.is_overlapping(pm))
+        interactions["ct_pm"].append(ct.is_overlapping(pm))
 
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(frame, f'frame: {count+1}',
-                    (50, 200), font,
-                    0.75, (0, 255, 255),
-                    2, cv2.LINE_4)
-        cv2.putText(frame, f'Interaction*:',
-                    (50, 250), font,
-                    0.75, (255, 0, 0),
-                    2, cv2.LINE_4)
-        cv2.putText(frame, f' toddler-caretaker: {td_ct}',
-                    (50, 300), font,
-                    0.75, (255, 0, 0),
-                    2, cv2.LINE_4)
-        cv2.putText(frame, f' toddler-plusme: {td_pm}',
-                    (50, 350), font,
-                    0.75, (255, 0, 0),
-                    2, cv2.LINE_4)
-        cv2.putText(frame, f' caretaker-plusme: {ct_pm}',
-                    (50, 400), font,
-                    0.75, (255, 0, 0),
-                    2, cv2.LINE_4)
-        writer.write(frame)
-
-        # Display the resulting frame
-        cv2.imshow('video', frame)
-        # creating 'q' as the quit button for the video
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-        count += 1
-
-    cap.release()
-    writer.release()
-    cv2.destroyAllWindows()
+    return interactions
