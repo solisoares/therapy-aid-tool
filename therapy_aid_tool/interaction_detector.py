@@ -7,7 +7,7 @@ from configparser import ConfigParser
 
 from collections import defaultdict
 
-from typing import List
+from typing import List, Tuple
 
 from therapy_aid_tool.utils.video import get_video_frames_count
 
@@ -27,6 +27,67 @@ PARSER.read(CFG_FILE)
 YOLO_PATH = PARSER.get("yolov5", "path")
 MODEL_WEIGHTS = PARSER.get("yolov5", "weights")
 MODEL_SIZE = PARSER.getint("model", "size")
+
+
+class BBox:
+    """Represents a Bounding Box prediction made by YOLOv5
+    """
+
+    def __init__(self, pred: Tuple) -> None:
+        """Initializes the BBox
+
+        A BBox prediction has two components, a class and the parameters 
+        of the bbox (x, y, w, h, conf).
+            x, y: center point of the bbox in the frame (float 0 -> 1)
+            w, h: width and height of the bbox (float 0 -> 1)
+            conf: confidence level of the bbox prediction.
+
+        Args:
+            pred (Tuple): Bounding Box Prediction, (cls, [x, y, w, h, conf])
+        """
+        self.pred = pred
+        self.cls = self.pred[0]
+        self.xywhc = self.pred[1]
+        self.create_corners()
+
+    def create_corners(self):
+        """Create the BBox corners x1, x2, y1, y2
+        """
+        if self.xywhc:
+            self.x, self.y, self.w, self.h, self.conf = self.xywhc
+            self.x1 = self.x - self.w / 2
+            self.x2 = self.x + self.w / 2
+            self.y1 = self.y - self.h / 2
+            self.y2 = self.y + self.h / 2
+
+    def niou(self, other: BBox):
+        """Normalized IoU
+
+        This implements (Area1 ∩ Area2) / min(Area1, Area2)
+
+        Args:
+            other (BBox): The other bounding box to check for NIoU
+
+        Returns:    
+            TODO
+        """
+        pass
+
+    def is_overlapping(self, other: BBox):
+        """Checks if this BBox is overlapping the another
+
+        Args:
+            other (BBox): The other BBox to check overlapping
+
+        Returns:
+            bool: Whether or not they it is overlapping
+        """
+        if self.xywhc and other.xywhc:
+            return (self.x1 < other.x2
+                    and self.y1 < other.y2
+                    and other.x1 < self.x2
+                    and other.y1 < self.y2)
+        return False
 
 
 def preds_from_torch_results(results, n_classes):
@@ -53,11 +114,11 @@ def preds_from_torch_results(results, n_classes):
         n_classes (int): Number of classes. Used to create template for lacking predictions
 
     Returns:
-        tuple: Predictions for each class. Key, Value = class, [x,y,w,h,conf] | None
+        list: Predictions for each class. Key, Value = class, [x,y,w,h,conf] | None
             Example: ((0, [x, y, w, h, conf]), (1, [x, y, w, h, conf]), (2, None), ...}
     """
     # Get predictions as list of lists
-    preds = results.xywhn.pop().tolist()
+    preds = results.xywhn[0].tolist()
 
     # All class numbers initiate with a list with -inf values
     preds_dict = {c: [[float("-inf")] * 5] for c in range(n_classes)}
@@ -73,33 +134,7 @@ def preds_from_torch_results(results, n_classes):
         if float("-inf") in preds_dict[c]:
             preds_dict[c] = None
 
-    return tuple(preds_dict.items())
-
-
-class BBox:
-    def __init__(self, pred: List[float]) -> None:
-        self.pred = pred  # One torch prediction is (cls, [x, y, w, h, conf])
-        if self.pred[-1] != None:
-            self.cls, (self.x, self.y, self.w, self.h, self.conf) = pred
-            self.xmin = self.x - self.w / 2
-            self.xmax = self.x + self.w / 2
-            self.ymin = self.y - self.h / 2
-            self.ymax = self.y + self.h / 2
-        else:
-            self.cls, self.x, self.y, self.w, self.h, self.conf = [0]*6
-
-    def iou(self, other: BBox):
-        pass
-
-    def is_overlapping(self, other: BBox):
-        if self.pred[-1] and other.pred[-1]:
-            return (
-                self.xmin < other.xmax
-                and self.ymin < other.ymax
-                and other.xmin < self.xmax
-                and other.ymin < self.ymax
-            )
-        return False
+    return list(preds_dict.items())
 
 
 def load_model(conf_th=0.75, iou_th=0.45):
@@ -134,11 +169,11 @@ def interaction_detector(in_video: str, n_classes=3):
         _, frame = cap.read()
         results = model(frame[:, :, ::-1], size=MODEL_SIZE)
         preds = preds_from_torch_results(results, n_classes)
-        
+
         td = BBox(preds[0])
         ct = BBox(preds[1])
         pm = BBox(preds[2])
-        
+
         interactions["td_ct"].append(td.is_overlapping(ct))
         interactions["td_pm"].append(td.is_overlapping(pm))
         interactions["ct_pm"].append(ct.is_overlapping(pm))
