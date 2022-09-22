@@ -60,6 +60,19 @@ class BBox:
             self.y1 = self.y - self.h / 2
             self.y2 = self.y + self.h / 2
 
+    def rectangular_area(self, x1, x2, y1, y2):
+        return (x2 - x1) * (y2 - y1)
+
+    def intersection(self, other: BBox):
+        # Intersection corners
+        x1 = max(self.x1, other.x1)
+        y1 = max(self.y1, other.y1)
+        x2 = min(self.x1, other.x1)
+        y2 = min(self.y1, other.y1)
+
+        area = self.rectangular_area(x1, x2, y1, y2)
+        return area
+
     def niou(self, other: BBox):
         """Normalized IoU
 
@@ -69,9 +82,18 @@ class BBox:
             other (BBox): The other bounding box to check for NIoU
 
         Returns:    
-            TODO
+            float: the value of the normalized iou
         """
-        pass
+        niou = 0
+        if self.is_overlapping(other):
+            intersection_area = self.intersection(other)
+            min_area = min(
+                self.rectangular_area(self.x1, self.x2, self.y1, self.y2),
+                other.rectangular_area(other.x1, other.x2, other.y1, other.y2)
+            )
+            niou = intersection_area / min_area
+
+        return niou
 
     def is_overlapping(self, other: BBox):
         """Checks if this BBox is overlapping the another
@@ -174,8 +196,8 @@ def interaction_detector(in_video: str, n_classes=3):
         ct = BBox(preds[1])
         pm = BBox(preds[2])
 
-        interactions["td_ct"].append(td.is_overlapping(ct))
-        interactions["td_pm"].append(td.is_overlapping(pm))
-        interactions["ct_pm"].append(ct.is_overlapping(pm))
+        interactions["td_ct"].append(td.niou(ct))
+        interactions["td_pm"].append(td.niou(pm))
+        interactions["ct_pm"].append(ct.niou(pm))
 
     return interactions
