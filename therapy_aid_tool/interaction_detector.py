@@ -67,8 +67,8 @@ class BBox:
         # Intersection corners
         x1 = max(self.x1, other.x1)
         y1 = max(self.y1, other.y1)
-        x2 = min(self.x1, other.x1)
-        y2 = min(self.y1, other.y1)
+        x2 = min(self.x2, other.x2)
+        y2 = min(self.y2, other.y2)
 
         area = self.rectangular_area(x1, x2, y1, y2)
         return area
