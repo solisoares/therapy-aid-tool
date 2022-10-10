@@ -1,4 +1,6 @@
-from therapy_aid_tool.interaction_detector import interaction_detector
+from therapy_aid_tool.video_parser import VideoParser
+
+from copy import deepcopy
 
 import streamlit as st
 import json
@@ -28,64 +30,68 @@ user_video = st.file_uploader(
     on_change=None)
 
 if user_video:
-    # TODO: prevent streamlit reruns of yolo on button click
-    # TODO: Add loading bar
-    # TODO: Process video and get interactions. Input: video | Output: interactions dict
     # Download user video
     with open("user_video.mp4", "wb") as f:
         f.write(user_video.read())
 
     # Run detection the first time only
-    if 'interactions' not in st.session_state:
+    if 'closeness' not in st.session_state:
         with st.spinner("It may take a while..."):
-            interactions = interaction_detector("user_video.mp4")
-            st.session_state['interactions'] = interactions
+            parser = VideoParser("user_video.mp4")
+            closeness = parser.closeness()
+            st.session_state['closeness'] = closeness
+            st.session_state['parser'] = parser
     else:
-        interactions = st.session_state['interactions']
+        closeness = st.session_state['closeness']
+        parser = st.session_state['parser']
+
     # Buttons
     st.subheader("What kind of interactions would you like to inspect?")
-    col1, col2, col3, col4 = st.columns(4)
-    button_td_ct = col1.button("Toddler touches Caretaker")
-    button_td_pm = col2.button("Toddler touches Plusme")
-    button_ct_pm = col3.button("Caretaker touches Plusme")
-    button_ct_td = col4.button("Caretaker touches Toddler")
+    # The output will be actually a bar of closeness with regions of interaction in red
+    col1, col2, col3 = st.columns(3)
+    button_td_ct = col1.button("Toddler-Caretaker")
+    button_td_pm = col2.button("Toddler-Plusme")
+    button_ct_pm = col3.button("Caretaker-Plusme")
 
     # Show Video
     st.video(user_video)
-    td_ct = np.array(interactions['td_ct'])
-    td_pm = np.array(interactions['td_pm'])
-    ct_pm = np.array(interactions['ct_pm'])
+    td_ct = np.array(closeness['td_ct'])
+    td_pm = np.array(closeness['td_pm'])
+    ct_pm = np.array(closeness['ct_pm'])
 
-    # Choose what type of interaction to show
-    # TODO: put a title on the interaction bar
-    y = td_ct  # default
+    # Choose what type of closeness to plot
+    # TODO: put a title on the closeness bar
+    y_closeness = td_ct  # default
+    title = None
     if button_td_ct:
-        y = td_ct
+        y_closeness = td_ct
+        title = "Toddler-Caretaker"
 
     elif button_td_pm:
-        y = td_pm
+        y_closeness = td_pm
+        title = "Toddler-Plusme"
 
     elif button_ct_pm:
-        y = ct_pm
+        y_closeness = ct_pm
+        title = "Caretaker-Plusme"
 
-    elif button_ct_td:
-        # TODO: Add interaction for Caretaker touching Toddler -> y = ct_td
-        pass
-
-    x = np.arange(len(y))
-
-    # Plot closeness and interaction bar
+    # Plot Closeness and Interaction bar
     # (8,1) is the perfect size to match streamlit video dimensions on the centered layout
+    CLOSENESS_THRESHOLD = 0.6
+    x = np.arange(len(y_closeness))
     fig, ax = plt.subplots(figsize=(8, 1))
-    ax.stackplot(x, y, alpha=0.8, color='lightsteelblue')
-    ax.fill_between(x, y, alpha=0.5, color='red', where=y > 0.6)
+    ax.stackplot(x, y_closeness, alpha=0.8, color='lightsteelblue')
+    ax.fill_between(x, y_closeness, alpha=0.5, color='red',
+                    where=y_closeness > CLOSENESS_THRESHOLD)
     ax.set_ylim(top=1)
-    ax.set_xlim(left=0, right=len(y))
+    ax.set_xlim(left=0, right=len(y_closeness))
     ax.vlines(0, 0, 1)
     ax.vlines(len(x), 0, 1)
     ax.yaxis.set_ticks([])
-
+    ax.set_title(title, {'fontsize': 10})
     st.pyplot(fig)
+
+
 else:
-    if 'interactions' in st.session_state:
-        st.session_state.pop('interactions')
+    if 'closeness' in st.session_state:
+        st.session_state.pop('closeness')
