@@ -91,6 +91,15 @@ if user_video:
     ax.set_title(title, {'fontsize': 10})
     st.pyplot(fig)
 
+    # Dataframe of Interactions Statistics
+    # The interactions based on 0.6 threshold of closeness
+    interactions = deepcopy(closeness)
+    for k, lst in interactions.items():
+        for idx, value in enumerate(lst):
+            interactions[k][idx] = value > CLOSENESS_THRESHOLD
+    st.subheader("Interactions Statistics")
+    st.dataframe(parser.interactions_statistics(
+        interactions), use_container_width=True)
 
 else:
     if 'closeness' in st.session_state:
