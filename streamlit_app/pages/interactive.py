@@ -1,4 +1,4 @@
-from therapy_aid_tool.video_parser import VideoParser
+from therapy_aid_tool.models.video import VideoBuilder
 
 from copy import deepcopy
 
@@ -35,15 +35,21 @@ if user_video:
         f.write(user_video.read())
 
     # Run detection the first time only
-    if 'closeness' not in st.session_state:
+    if 'video' not in st.session_state:
         with st.spinner("It may take a while..."):
-            parser = VideoParser("user_video.mp4")
-            closeness = parser.closeness()
-            st.session_state['closeness'] = closeness
-            st.session_state['parser'] = parser
+            # parser = VideoParser("user_video.mp4")
+            # closeness = parser.closeness()
+            # st.session_state['closeness'] = closeness
+            # st.session_state['parser'] = parser
+            # WIP
+            video = VideoBuilder("user_video.mp4").build()
+            st.session_state['video'] = video
+
     else:
-        closeness = st.session_state['closeness']
-        parser = st.session_state['parser']
+        # closeness = st.session_state['closeness']
+        # parser = st.session_state['parser']
+        # WIP
+        video = st.session_state['video']
 
     # Buttons
     st.subheader("What kind of interactions would you like to inspect?")
@@ -55,9 +61,13 @@ if user_video:
 
     # Show Video
     st.video(user_video)
-    td_ct = np.array(closeness['td_ct'])
-    td_pm = np.array(closeness['td_pm'])
-    ct_pm = np.array(closeness['ct_pm'])
+    # td_ct = np.array(closeness['td_ct'])
+    # td_pm = np.array(closeness['td_pm'])
+    # ct_pm = np.array(closeness['ct_pm'])
+    # WIP
+    td_ct = np.array(video.closeness['td_ct'])
+    td_pm = np.array(video.closeness['td_pm'])
+    ct_pm = np.array(video.closeness['ct_pm'])
 
     # Choose what type of closeness to plot
     # TODO: put a title on the closeness bar
@@ -93,14 +103,19 @@ if user_video:
 
     # Dataframe of Interactions Statistics
     # The interactions based on 0.6 threshold of closeness
-    interactions = deepcopy(closeness)
+
+    # interactions = deepcopy(closeness)
+    # WIP
+    interactions = deepcopy(video.closeness)
     for k, lst in interactions.items():
         for idx, value in enumerate(lst):
             interactions[k][idx] = value > CLOSENESS_THRESHOLD
     st.subheader("Interactions Statistics")
-    st.dataframe(parser.interactions_statistics(
-        interactions), use_container_width=True)
+    # st.dataframe(parser.interactions_statistics(
+    #     interactions), use_container_width=True)
+    # WIP
+    st.dataframe(video.interactions_statistics, use_container_width=True)
 
 else:
-    if 'closeness' in st.session_state:
-        st.session_state.pop('closeness')
+    if 'video' in st.session_state:
+        st.session_state.pop('video')
