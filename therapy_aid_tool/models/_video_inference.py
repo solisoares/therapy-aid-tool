@@ -12,7 +12,7 @@ THIS_FILE = Path(__file__)
 THIS_DIR = THIS_FILE.parent
 
 # Read config file
-CFG_FILE = THIS_DIR / "detect.cfg"
+CFG_FILE = THIS_DIR.parent / "detect.cfg"
 PARSER = ConfigParser()
 PARSER.read(CFG_FILE)
 
