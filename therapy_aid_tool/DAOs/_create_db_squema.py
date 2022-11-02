@@ -1,10 +1,11 @@
 import sqlite3
 from pathlib import Path
 
-THISDIR = Path(__file__).parent.resolve()
-DATABASE = THISDIR/"sessions.db"
+ROOT = Path(__file__).parents[2].resolve()
+DATABASE = ROOT/"database/sessions.db"
 
-def create_schema(database):
+
+def _create_schema(database):
     con = sqlite3.connect(database)
     cur = con.cursor()
     cur.execute("PRAGMA foreign_keys = ON")
@@ -36,10 +37,13 @@ def create_schema(database):
     cur.execute(querry)
     con.commit()
 
-if __name__ == "__main__":
-    if not DATABASE.is_file():
-        create_schema(DATABASE)
+
+def create_schema(database):
+    database = Path(database)
+    if not database.is_file():
+        _create_schema(database)
     else:
+        raise Exception(f"\n{'----'*25}\n--> Database '{database}' already exists. <--\n{'----'*25}\n")
         print(f"----"*25)
-        print(f"--> Database '{DATABASE}' already exists. <--")
+        print(f"--> Database '{database}' already exists. <--")
         print(f"----"*25)

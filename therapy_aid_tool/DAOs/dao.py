@@ -31,6 +31,10 @@ class DAO(ABC):
         pass
 
     @abstractmethod
+    def _get_from_id(self, id):
+        pass
+
+    @abstractmethod
     def add(self):
         pass
 
@@ -44,6 +48,10 @@ class DAO(ABC):
 
     @abstractmethod
     def get(self):
+        pass
+
+    @abstractmethod
+    def get_all(self):
         pass
 
     # TODO:
