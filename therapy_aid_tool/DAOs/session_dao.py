@@ -59,7 +59,7 @@ class SessionDAO(DAO):
                 WHERE id = ?;
                 """
             new_values = self._adapt_values(new_session)
-            self.cur.execute(querry,[*new_values, id])
+            self.cur.execute(querry, [*new_values, id])
             self.con.commit()
 
     def remove(self, toddler_name: str, date: str):
@@ -85,4 +85,10 @@ class SessionDAO(DAO):
     def get_all(self):
         querry = f"SELECT * FROM sessions"
         res = self.cur.execute(querry).fetchall()
+        return res
+
+    def get_all_dates(self):
+        querry = f"SELECT date FROM sessions"
+        res = self.cur.execute(querry).fetchall()
+        res = [item[0] for item in res if res]
         return res

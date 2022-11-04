@@ -60,3 +60,9 @@ class ToddlerDAO(DAO):
         querry = f"SELECT * FROM toddlers"
         res = self.cur.execute(querry).fetchall()
         return res
+
+    def get_all_names(self):
+        querry = f"SELECT name FROM toddlers"
+        res = self.cur.execute(querry).fetchall()
+        res = [item[0] for item in res if res]
+        return res

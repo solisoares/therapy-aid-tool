@@ -170,9 +170,9 @@ class VideoBuilder:
                 It can be used in a pandas.DataFrame to output a chart view.
 
                 Return example: {
-                    'td_ct': [n_interactions, total_time, ...],
-                    'td_pm': [n_interactions, total_time, ...],
-                    'ct_pm': [n_interactions, total_time, ...]
+                    'td_ct': {n_interactions: int', total_time: float, ...},
+                    'td_pm': {n_interactions: int', total_time: float, ...},
+                    'ct_pm': {n_interactions: int', total_time: float, ...}
                 }
         """
         frame_time = 1 / self.__fps  # time one frame takes to run

@@ -1,0 +1,1 @@
+The `database/` folder is a template to hold the sessions database (sessions.db) and the videos uploaded in the `videos/` folder

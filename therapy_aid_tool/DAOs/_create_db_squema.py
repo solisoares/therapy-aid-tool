@@ -1,9 +1,6 @@
 import sqlite3
 from pathlib import Path
 
-ROOT = Path(__file__).parents[2].resolve()
-DATABASE = ROOT/"database/sessions.db"
-
 
 def _create_schema(database):
     con = sqlite3.connect(database)
@@ -43,7 +40,11 @@ def create_schema(database):
     if not database.is_file():
         _create_schema(database)
     else:
-        raise Exception(f"\n{'----'*25}\n--> Database '{database}' already exists. <--\n{'----'*25}\n")
-        print(f"----"*25)
-        print(f"--> Database '{database}' already exists. <--")
-        print(f"----"*25)
+        raise Exception(
+            f"\n{'----'*25}\n--> Database '{database}' already exists. <--\n{'----'*25}\n")
+
+
+if __name__ == "__main__":
+    ROOT = Path(__file__).parents[2].resolve()
+    DATABASE = ROOT/"database/sessions.db"
+    create_schema(DATABASE)

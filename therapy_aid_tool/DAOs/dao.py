@@ -5,7 +5,7 @@ import sqlite3
 
 class DAO(ABC):
     @abstractmethod
-    def __init__(self, database: str, ) -> None:
+    def __init__(self, database) -> None:
         self.__db = database
         self.con, self.cur = self.__establish_connection()
 
@@ -53,7 +53,3 @@ class DAO(ABC):
     @abstractmethod
     def get_all(self):
         pass
-
-    # TODO:
-    # [] Add verification for existing object
-    # []

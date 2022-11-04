@@ -1,13 +1,24 @@
-from therapy_aid_tool.models.video import VideoBuilder
-
-from copy import deepcopy
-
 import streamlit as st
-import json
 
 import numpy as np
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
+# TODO: avoid using any Model or DAO in the View
+from therapy_aid_tool.models.toddler import Toddler
+from therapy_aid_tool.models.video import VideoBuilder
+# This is a quick hack to test this file withiut GPU available
+from streamlit_app.pages._quick_video import _video
+
+from streamlit_app.st_controll import (
+    VIDEOS_DIR,
+    save_user_video,
+    video_fp_from_toddler_date,
+    add_session,
+    toddlers_names,
+)
+
+# ==================================================
 # Page configs
 TITLE = "Interactive Event Detection"
 
@@ -16,61 +27,54 @@ st.set_page_config(
     layout="centered")
 
 st.title(TITLE)
-st.subheader(
-    "Upload a video of an ASD therapy session \
+st.markdown(
+    "#### Upload a video of an ASD therapy session \
      and generate interactive and statistical \
      results.")
 
-# st.write(st.session_state)
-# Upload video
+# ==================================================
+# Widget ::: Upload video
 user_video = st.file_uploader(
     label="",
     accept_multiple_files=False,
     key=None,
     on_change=None)
+st.markdown("---")
 
+# ==================================================
+# Process video
 if user_video:
-    # Download user video
-    with open("user_video.mp4", "wb") as f:
-        f.write(user_video.read())
+    save_user_video(user_video, "user_video.mp4")
 
-    # Run detection the first time only
+    # Build video one time only
     if 'video' not in st.session_state:
         with st.spinner("It may take a while..."):
-            # parser = VideoParser("user_video.mp4")
-            # closeness = parser.closeness()
-            # st.session_state['closeness'] = closeness
-            # st.session_state['parser'] = parser
-            # WIP
-            video = VideoBuilder("user_video.mp4").build()
+            # TODO: use a real video
+            # video = VideoBuilder("user_video.mp4").build()
+            video = _video
             st.session_state['video'] = video
-
     else:
-        # closeness = st.session_state['closeness']
-        # parser = st.session_state['parser']
-        # WIP
         video = st.session_state['video']
 
-    # Buttons
-    st.subheader("What kind of interactions would you like to inspect?")
+    # ==================================================
+    # Buttons ::: Choose type of interactions
+    st.markdown("### What kind of interactions would you like to inspect?")
     # The output will be actually a bar of closeness with regions of interaction in red
     col1, col2, col3 = st.columns(3)
     button_td_ct = col1.button("Toddler-Caretaker")
     button_td_pm = col2.button("Toddler-Plusme")
     button_ct_pm = col3.button("Caretaker-Plusme")
 
-    # Show Video
+    # ==================================================
+    # Widget ::: Show Video
     st.video(user_video)
-    # td_ct = np.array(closeness['td_ct'])
-    # td_pm = np.array(closeness['td_pm'])
-    # ct_pm = np.array(closeness['ct_pm'])
-    # WIP
+
+    # ==================================================
+    # Choose what type of closeness to plot
     td_ct = np.array(video.closeness['td_ct'])
     td_pm = np.array(video.closeness['td_pm'])
     ct_pm = np.array(video.closeness['ct_pm'])
 
-    # Choose what type of closeness to plot
-    # TODO: put a title on the closeness bar
     y_closeness = td_ct  # default
     title = None
     if button_td_ct:
@@ -85,12 +89,14 @@ if user_video:
         y_closeness = ct_pm
         title = "Caretaker-Plusme"
 
-    # Plot Closeness and Interaction bar
+    # ==================================================
+    # Image ::: Plot Closeness and Interaction bar
     # (8,1) is the perfect size to match streamlit video dimensions on the centered layout
     CLOSENESS_THRESHOLD = 0.6
     x = np.arange(len(y_closeness))
     fig, ax = plt.subplots(figsize=(8, 1))
     ax.stackplot(x, y_closeness, alpha=0.8, color='lightsteelblue')
+    # TODO: use interactions to fill_between instead of thresholding the closeness
     ax.fill_between(x, y_closeness, alpha=0.5, color='red',
                     where=y_closeness > CLOSENESS_THRESHOLD)
     ax.set_ylim(top=1)
@@ -100,21 +106,47 @@ if user_video:
     ax.yaxis.set_ticks([])
     ax.set_title(title, {'fontsize': 10})
     st.pyplot(fig)
+    st.markdown("#")
+    st.markdown("---")
 
-    # Dataframe of Interactions Statistics
-    # The interactions based on 0.6 threshold of closeness
-
-    # interactions = deepcopy(closeness)
-    # WIP
+    # ==================================================
+    # Widget ::: Interactions Statistics
     interactions = deepcopy(video.closeness)
     for k, lst in interactions.items():
         for idx, value in enumerate(lst):
             interactions[k][idx] = value > CLOSENESS_THRESHOLD
-    st.subheader("Interactions Statistics")
-    # st.dataframe(parser.interactions_statistics(
-    #     interactions), use_container_width=True)
-    # WIP
+    st.markdown("### Interactions Statistics")
     st.dataframe(video.interactions_statistics, use_container_width=True)
+    st.markdown("#")
+    st.markdown("---")
+
+    # ==================================================
+    # Expanders ::: Forms ::: Add Session to database
+    st.markdown("### Add Recorded Session to the database?")
+    st.markdown("#### ")
+
+    col_1, col_2 = st.columns(2)
+    add_new = col_1.expander("Add with new toddler")
+    add_existing = col_2.expander("Add with existing toddler")
+
+    with add_new:
+        with st.form(key="add_session_1"):
+            toddler = Toddler(st.text_input("What is the toddler's name?"))
+            date = str(st.date_input("What is this session date?", key="1"))
+            if st.form_submit_button("submit") and all([toddler, date]):
+                video.filepath = video_fp_from_toddler_date(toddler, date)
+                save_user_video(user_video, VIDEOS_DIR/video.filepath)
+                add_session(toddler, video, date)
+
+    with add_existing:
+        with st.form(key="add_session_2"):
+            toddler = Toddler(st.selectbox(
+                "What is the toddler's name?", toddlers_names()))
+            date = str(st.date_input("What is this session date?", key="2"))
+            if st.form_submit_button("submit") and all([toddler, date]):
+                video.filepath = video_fp_from_toddler_date(toddler, date)
+                save_user_video(user_video, VIDEOS_DIR/video.filepath)
+                add_session(toddler, video, date)
 
 else:
     if 'video' in st.session_state:

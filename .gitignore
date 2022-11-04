@@ -2,6 +2,10 @@
 **/weights/*
 !**/weights/README.txt
 
+**/database/sessions.db
+**/database/videos/*
+!**/database/videos/README.txt
+
 **/sample_data/
 **/wandb/
 **/yolov5/
