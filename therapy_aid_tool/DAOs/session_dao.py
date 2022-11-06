@@ -92,3 +92,10 @@ class SessionDAO(DAO):
         res = self.cur.execute(querry).fetchall()
         res = [item[0] for item in res if res]
         return res
+
+    def get_dates_from_name(self, toddler_name: str):
+        toddler_id = self.__toddler_dao._get_id(toddler_name)
+        querry = f"SELECT date FROM sessions WHERE toddler_id = ?"
+        res = self.cur.execute(querry, [toddler_id]).fetchall()
+        res = [item[0] for item in res if res]
+        return res

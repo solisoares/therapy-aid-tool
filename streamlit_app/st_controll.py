@@ -44,7 +44,8 @@ def video_fp_from_toddler_date(toddler: Toddler, date: str):
     Returns:
         str: The generated video filepath according to toddler.name and date
     """
-    return f"{'-'.join(toddler.name.split())}_{date}.mp4"
+    filepath = str(VIDEOS_DIR/f"{'-'.join(toddler.name.split())}_{date}.mp4")
+    return filepath
 
 
 def add_session(toddler: Toddler, video: Video, date: str):
@@ -64,5 +65,14 @@ def add_session(toddler: Toddler, video: Video, date: str):
     VideoDAO(DATABASE).add(video)
     SessionDAO(DATABASE).add(session)
 
+
 def toddlers_names():
     return ToddlerDAO(DATABASE).get_all_names()
+
+
+def dates_from_name(name: str):
+    return SessionDAO(DATABASE).get_dates_from_name(name)
+
+
+def get_session(toddler_name: str, date: str):
+    return SessionDAO(DATABASE).get(toddler_name, date)
