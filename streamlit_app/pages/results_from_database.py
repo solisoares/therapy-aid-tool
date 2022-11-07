@@ -89,9 +89,5 @@ st.markdown("---")
 
 # ==================================================
 # Widget ::: Interactions Statistics
-interactions = deepcopy(video.closeness)
-for k, lst in interactions.items():
-    for idx, value in enumerate(lst):
-        interactions[k][idx] = value > CLOSENESS_THRESHOLD
 st.markdown("### Interactions Statistics")
 st.dataframe(video.interactions_statistics, use_container_width=True)
