@@ -1,6 +1,12 @@
+import streamlit as st
+
+from copy import deepcopy
 from io import BufferedReader
 from pathlib import Path
 from typing import Union
+
+import numpy as np
+import matplotlib.pyplot as plt
 
 from therapy_aid_tool.models.toddler import Toddler
 from therapy_aid_tool.models.video import Video
@@ -76,3 +82,79 @@ def dates_from_name(name: str):
 
 def get_session(toddler_name: str, date: str):
     return SessionDAO(DATABASE).get(toddler_name, date)
+
+
+def __sessions_from_name(toddler_name: str):
+    """Get all the sessions that a toddler is present
+
+    Args:
+        toddler_name (str): The name o the toddler   
+    """
+    return SessionDAO(DATABASE).get_all_from_name(toddler_name)
+
+
+def __statistics_from_all_sessions(toddler_name: str):
+    sessions = __sessions_from_name(toddler_name)
+    # interactions for each video
+    _statistics = [session.video.interactions_statistics
+                               for session in sessions]
+    # Merge these interactions
+    data_template = {
+        "n_interactions": [],
+        "total_time": [],
+        "min_time": [],
+        "max_time": [],
+        "mean_time": [],
+    }
+    statistics = {
+        "td_ct": deepcopy(data_template),
+        "td_pm": deepcopy(data_template),
+        "ct_pm": deepcopy(data_template),
+    }
+    for _dict in _statistics:
+        for _k, _v in _dict.items():
+            for __k, __v in _v.items():
+                statistics[_k][__k].append(__v)
+    return statistics
+
+
+def plot_sessions_progress(toddler_name: str):
+    """Plots the progress of a toddler over the sessions they appear
+
+    Args:
+        toddler_name (str): The name o the toddler
+    """
+    statistics = __statistics_from_all_sessions(toddler_name)
+
+    titles = {
+        'td_ct': 'Toddler-Caretaker',
+        'td_pm': 'Toddler-PlusMe',
+        'ct_pm': 'Caretaker-PlusMe',
+    }
+
+    colors = {
+        'n_interactions': 'blue',
+        'total_time': 'red',
+        'min_time': 'green',
+        'max_time': 'yellow',
+        'mean_time': 'black',
+    }
+
+    labels = {
+        'n_interactions': 'nº interactions',
+        'total_time': 'total time (s)',
+        'min_time': 'min time (s)',
+        'max_time': 'max time (s)',
+        'mean_time': 'mean time (s)',
+    }
+    n_sessions = len(statistics['td_ct']['n_interactions'])
+    x = np.arange(1, n_sessions + 1)
+    for type, statistic in statistics.items():
+        fig, ax = plt.subplots()
+        for k, v in statistic.items():
+            ax.plot(x, v, 'bo-', alpha=0.8, color=colors[k], label=labels[k])
+            ax.legend()
+            ax.set_title(titles[type])
+            ax.grid()
+            ax.set_xlabel("sessions", loc="right")
+        st.pyplot(fig)

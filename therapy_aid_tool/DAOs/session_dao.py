@@ -87,6 +87,13 @@ class SessionDAO(DAO):
         res = self.cur.execute(querry).fetchall()
         return res
 
+    def get_all_from_name(self, toddler_name: str):
+        toddler_id = self.__toddler_dao._get_id(toddler_name)
+        querry = f"SELECT toddler_id, video_id, date FROM sessions WHERE toddler_id = ?"
+        res = self.cur.execute(querry, [toddler_id]).fetchall()
+        res = [Session(*self._convert_values(item)) for item in res if res]
+        return res
+
     def get_all_dates(self):
         querry = f"SELECT date FROM sessions"
         res = self.cur.execute(querry).fetchall()
