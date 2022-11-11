@@ -73,27 +73,71 @@ def add_session(toddler: Toddler, video: Video, date: str):
 
 
 def toddlers_names():
+    """Get a list of all toddlers names
+
+    Returns:
+        list[str]: the toddlers' names
+    """
     return ToddlerDAO(DATABASE).get_all_names()
 
 
 def dates_from_name(name: str):
+    """Get a list of all sessions dates that a toddler appears
+    
+    Returns:
+        list[str]: The session dates where a toddler appears
+    """
     return SessionDAO(DATABASE).get_dates_from_name(name)
 
 
 def get_session(toddler_name: str, date: str):
+    """Get a session
+    
+    A session can be querrid from toddler and a date
+    
+    Returns:
+        Session: The Session
+    """
     return SessionDAO(DATABASE).get(toddler_name, date)
 
 
 def __sessions_from_name(toddler_name: str):
-    """Get all the sessions that a toddler is present
+    """Get list of all the sessions that a toddler is present
 
     Args:
         toddler_name (str): The name o the toddler   
+
+    Returns:
+        list[Session]: The sessions the toddler is present
     """
     return SessionDAO(DATABASE).get_all_from_name(toddler_name)
 
 
 def __statistics_from_all_sessions(toddler_name: str):
+    """Get statistics from all sessions that a toddler is present
+
+    It returns a dictionary of statistics where the keys are
+    the three interactions classes (td_ct, td_pm, ct_pm) and
+    the value for each key is a dictionary of lists, where
+    those keys are the type of statistics and their value a list
+    of that statistic over the sessions.
+
+    Return example for 4 existing sessions:
+        statistics = {
+            'td_ct': {'n_interactions': [int, int, int, int],
+                      'min_time': [float, float, float, float],
+                      'max_time': [float, float, float, float],
+                      'mean_time': [float, float, float, float]},
+            'td_pm': ...,
+            'ct_pm': ...,
+        }
+
+    Args:
+        toddler_name (str): The name of the toddler   
+
+    Returns:
+        dict[str, dict[str, list[Unknown]]]: The statistics for all sessions
+    """
     sessions = __sessions_from_name(toddler_name)
     # interactions for each video
     _statistics = [session.video.interactions_statistics
@@ -120,6 +164,9 @@ def __statistics_from_all_sessions(toddler_name: str):
 
 def plot_sessions_progress(toddler_name: str):
     """Plots the progress of a toddler over the sessions they appear
+
+    On the left y axis, plots about time statistics (min_time, max_time ...).
+    On the right y axis, plot about counts (nº of interactions)
 
     Args:
         toddler_name (str): The name o the toddler
