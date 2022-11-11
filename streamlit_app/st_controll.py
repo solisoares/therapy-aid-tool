@@ -139,7 +139,8 @@ def __statistics_from_all_sessions(toddler_name: str):
         dict[str, dict[str, list[Unknown]]]: The statistics for all sessions
     """
     sessions = __sessions_from_name(toddler_name)
-
+    sessions = sorted(sessions, key=lambda ses: ses.date)
+    
     # interactions statisics for each session
     separated_statistics = [session.video.interactions_statistics
                             for session in sessions]
