@@ -139,10 +139,11 @@ def __statistics_from_all_sessions(toddler_name: str):
         dict[str, dict[str, list[Unknown]]]: The statistics for all sessions
     """
     sessions = __sessions_from_name(toddler_name)
-    # interactions for each video
-    _statistics = [session.video.interactions_statistics
-                               for session in sessions]
-    # Merge these interactions
+
+    # interactions statisics for each session
+    separated_statistics = [session.video.interactions_statistics
+                            for session in sessions]
+
     data_template = {
         "n_interactions": [],
         "total_time": [],
@@ -155,10 +156,13 @@ def __statistics_from_all_sessions(toddler_name: str):
         "td_pm": deepcopy(data_template),
         "ct_pm": deepcopy(data_template),
     }
-    for _dict in _statistics:
-        for _k, _v in _dict.items():
-            for __k, __v in _v.items():
-                statistics[_k][__k].append(__v)
+
+    # Merge separated statistics for a class into lists over the sessions
+    for sep_stat in separated_statistics:
+        for inter_type, stat_group in sep_stat.items():
+            for type_stat, stat_value in stat_group.items():
+                statistics[inter_type][type_stat].append(stat_value)
+                # Example: statistics['td_ct']['min_time'].append(float)
     return statistics
 
 
@@ -179,29 +183,44 @@ def plot_sessions_progress(toddler_name: str):
         'ct_pm': 'Caretaker-PlusMe',
     }
 
-    colors = {
-        'n_interactions': 'blue',
-        'total_time': 'red',
-        'min_time': 'green',
-        'max_time': 'yellow',
-        'mean_time': 'black',
-    }
+    stat_type = ['n_interactions', 'total_time',
+                 'min_time', 'max_time', 'mean_time']
+    color_map = plt.get_cmap("hsv")
+    colors = dict(zip(stat_type, color_map(np.linspace(0, 1, 6))))
 
     labels = {
         'n_interactions': 'nº interactions',
-        'total_time': 'total time (s)',
-        'min_time': 'min time (s)',
-        'max_time': 'max time (s)',
-        'mean_time': 'mean time (s)',
+        'total_time': 'total time',
+        'min_time': 'min time',
+        'max_time': 'max time',
+        'mean_time': 'mean time',
     }
+
     n_sessions = len(statistics['td_ct']['n_interactions'])
     x = np.arange(1, n_sessions + 1)
-    for type, statistic in statistics.items():
-        fig, ax = plt.subplots()
-        for k, v in statistic.items():
-            ax.plot(x, v, 'bo-', alpha=0.8, color=colors[k], label=labels[k])
-            ax.legend()
-            ax.set_title(titles[type])
+
+    for inter_type, stat_group in statistics.items():
+        fig, ax1 = plt.subplots(figsize=(14, 5))
+
+        for stat_type, values in stat_group.items():
+            ax = ax1
+            leg_loc = "upper left"
+            y_label = "Seconds"
+            ax.set_title(titles[inter_type])
             ax.grid()
-            ax.set_xlabel("sessions", loc="right")
+            ax.set_xlabel("Sessions", loc="center", fontweight="bold")
+            ax.set_xticks(range(1, n_sessions + 1))
+
+            if stat_type == "n_interactions":
+                ax2 = ax1.twinx()
+                ax = ax2
+                leg_loc = "upper right"
+                y_label = "Count"
+
+            ax.plot(x, values, "o-", alpha=1,
+                    color=colors[stat_type],
+                    label=labels[stat_type])
+            ax.legend(loc=leg_loc)
+            ax.set_ylabel(y_label, loc="top", fontweight="bold")
+
         st.pyplot(fig)
