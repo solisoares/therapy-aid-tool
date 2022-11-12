@@ -6,6 +6,7 @@ from configparser import ConfigParser
 from typing import Tuple
 
 import torch
+import math
 
 
 THIS_FILE = Path(__file__)
@@ -155,7 +156,7 @@ class BBox:
         Returns:    
             float: the value of the normalized iou
         """
-        niou = 0
+        niou = math.nan
         if self.is_overlapping(other):
             intersection_area = self.intersection(other)
             min_area = min(
