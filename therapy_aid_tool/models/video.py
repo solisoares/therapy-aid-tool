@@ -22,7 +22,8 @@ class VideoBuilder:
     bounding boxes for each class.
     """
 
-    n_classes: int = 6
+    n_classes: int = 3
+    CLOSENESS_THRESHOLD: float = 0.6
 
     def __init__(self, filepath: str) -> None:
         self.__fp = filepath
@@ -72,16 +73,12 @@ class VideoBuilder:
         for i in range(self.__total_frames):
             _, frame = self.__cap.read()
             inference = model(frame[:, :, ::-1], size=MODEL_SIZE)
-            preds = preds_from_torch_results(
-                inference, self.n_classes
-            )  # returns six raw preds
+            preds = preds_from_torch_results(inference,
+                                             self.n_classes)  # returns three preds
 
             bbs["td"].append(BBox(preds[0]))
             bbs["ct"].append(BBox(preds[1]))
             bbs["pm"].append(BBox(preds[2]))
-            bbs["td_ct_interaction"].append(BBox(preds[3]))
-            bbs["td_pm_interaction"].append(BBox(preds[4]))
-            bbs["ct_pm_interaction"].append(BBox(preds[5]))
 
         return bbs
 
@@ -122,6 +119,8 @@ class VideoBuilder:
     def __interactions(self):
         """Return whether or not there is an interaction present for each frame
 
+        The interaction is predicted if the closeness is greater than a threshold
+
         Interaction is a type of detection that is currently made alongside the
         actors. Its presence indicates that one actors is engaging in physical touch
         with another. Like the toddler touching the plusme teddy bear or the caretaker
@@ -143,16 +142,20 @@ class VideoBuilder:
         """
         interactions = defaultdict(list)
         bbs = self.__bbs
+        closeness = self.__clos
 
         for idx in range(self.__total_frames):
             interactions["td_ct"].append(
-                True if bbs["td_ct_interaction"][idx] else False
+                True if (closeness["td_ct"][idx] >
+                         self.CLOSENESS_THRESHOLD) else False
             )
             interactions["td_pm"].append(
-                True if bbs["td_pm_interaction"][idx] else False
+                True if (closeness["td_pm"][idx] >
+                         self.CLOSENESS_THRESHOLD) else False
             )
             interactions["ct_pm"].append(
-                True if bbs["ct_pm_interaction"][idx] else False
+                True if (closeness["ct_pm"][idx] >
+                         self.CLOSENESS_THRESHOLD) else False
             )
 
         return interactions
