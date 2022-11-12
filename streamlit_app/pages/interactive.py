@@ -7,35 +7,6 @@ from copy import deepcopy
 # TODO: avoid using any Model or DAO in the View
 from therapy_aid_tool.models.toddler import Toddler
 from therapy_aid_tool.models.video import VideoBuilder
-# This is a quick hack to test this file withiut GPU available
-from streamlit_app.pages._quick_video import _video
-
-# ==================================================
-from therapy_aid_tool.models.video import Video
-import numpy as np
-
-closeness = {
-    'td_ct': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
-    'td_pm': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
-    'ct_pm': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
-}
-
-
-interactions = {
-    'td_ct': [True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False, False, ],
-    'td_pm': [True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False, False, ],
-    'ct_pm': [True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False, False, False, False, False, ],
-}
-
-
-statistics = {
-    'td_ct': {"n_interactions": np.floor(8*np.random.random()*10), "total_time": np.floor(8*np.random.random()*20), "min_time": 8*np.random.random()*2, "max_time": 8*np.random.random()*10, "mean_time": np.floor(8*np.random.random()*7.5)},
-    'td_pm': {"n_interactions": np.floor(8*np.random.random()*10), "total_time": np.floor(8*np.random.random()*20), "min_time": 8*np.random.random()*2, "max_time": 8*np.random.random()*10, "mean_time": np.floor(8*np.random.random()*7.5)},
-    'ct_pm': {"n_interactions": np.floor(8*np.random.random()*10), "total_time": np.floor(8*np.random.random()*20), "min_time": 8*np.random.random()*2, "max_time": 8*np.random.random()*10, "mean_time": np.floor(8*np.random.random()*7.5)},
-}
-
-_video = Video("xxx", closeness, interactions, statistics)
-# ============================================
 
 from streamlit_app.st_controll import (
     VIDEOS_DIR,
@@ -76,9 +47,7 @@ if user_video:
     # Build video one time only
     if 'video' not in st.session_state:
         with st.spinner("It may take a while..."):
-            # TODO: use a real video
-            # video = VideoBuilder("user_video.mp4").build()
-            video = _video
+            video = VideoBuilder("user_video.mp4").build()
             st.session_state['video'] = video
     else:
         video = st.session_state['video']
@@ -98,36 +67,31 @@ if user_video:
 
     # ==================================================
     # Choose what type of closeness to plot
-    td_ct = np.array(video.closeness['td_ct'])
-    td_pm = np.array(video.closeness['td_pm'])
-    ct_pm = np.array(video.closeness['ct_pm'])
-
-    y_closeness = td_ct  # default
+    type = "td_ct"  # default
     title = None
     if button_td_ct:
-        y_closeness = td_ct
+        type = "td_ct"
         title = "Toddler-Caretaker"
 
     elif button_td_pm:
-        y_closeness = td_pm
+        type = "td_pm"
         title = "Toddler-Plusme"
 
     elif button_ct_pm:
-        y_closeness = ct_pm
+        type = "ct_pm"
         title = "Caretaker-Plusme"
 
     # ==================================================
     # Image ::: Plot Closeness and Interaction bar
     # (8,1) is the perfect size to match streamlit video dimensions on the centered layout
     CLOSENESS_THRESHOLD = 0.6
-    x = np.arange(len(y_closeness))
+    x = np.arange(len(video.closeness[type]))
     fig, ax = plt.subplots(figsize=(8, 1))
-    ax.stackplot(x, y_closeness, alpha=0.8, color='lightsteelblue')
-    # TODO: use interactions to fill_between instead of thresholding the closeness
-    ax.fill_between(x, y_closeness, alpha=0.5, color='red',
-                    where=y_closeness > CLOSENESS_THRESHOLD)
+    ax.stackplot(x, video.closeness[type], alpha=0.8, color='lightsteelblue')
+    ax.fill_between(x, video.closeness[type], alpha=0.5, color='red',
+                    where=video.interactions[type])
     ax.set_ylim(top=1)
-    ax.set_xlim(left=0, right=len(y_closeness))
+    ax.set_xlim(left=0, right=len(video.closeness[type]))
     ax.vlines(0, 0, 1)
     ax.vlines(len(x), 0, 1)
     ax.yaxis.set_ticks([])
