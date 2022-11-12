@@ -41,12 +41,7 @@ class VideoBuilder:
 
         The output is stored in a dictionary (defaultdict) with the
         keys being the actual classes of detection available, for
-        now there are 6 classes divide in two fields, actors and
-        interactions.
-            Actors: toddler, caretaker and plusme
-            interactions: toddler-caretaker,
-                          toddler-plusme,
-                          and caretaker-plusme.
+        now there are 3 classes (actors): toddler, caretaker and plusme
 
         Each bounding box, being a instance of a BBox, can be used to
         extract its coordinates and other parameters to detect how
@@ -62,9 +57,6 @@ class VideoBuilder:
                     'td': [BBox0, BBox1, ...],
                     'ct': [BBox0, BBox1, ...],
                     'pm': [BBox0, BBox1, ...],
-                    'td_ct_interaction': [BBox0, BBox1, ...],
-                    'td_pm_interaction': [BBox0, BBox1, ...],
-                    'ct_pm_interaction': [BBox0, BBox1, ...]
                     }
         """
         model = load_model()
@@ -120,12 +112,14 @@ class VideoBuilder:
         """Return whether or not there is an interaction present for each frame
 
         The interaction is predicted if the closeness is greater than a threshold
-
-        Interaction is a type of detection that is currently made alongside the
-        actors. Its presence indicates that one actors is engaging in physical touch
+        Thus, the interaction is actually a prediction of interaction since we use
+        a threshold of the closeness.
+            Interaction: True if closeness > threshold, False otherwise
+        
+        Interaction indicates that one actors is engaging in physical touch
         with another. Like the toddler touching the plusme teddy bear or the caretaker
         showing the toddler how to play with the teddy bear.
-
+        
         For each frame, return a Bool indicating if there is that respective interaction,
         making an array of bools for one interaction class
 
