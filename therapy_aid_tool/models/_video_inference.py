@@ -156,16 +156,18 @@ class BBox:
         Returns:    
             float: the value of the normalized iou
         """
-        niou = math.nan
-        if self.is_overlapping(other):
-            intersection_area = self.intersection(other)
-            min_area = min(
-                self.rectangular_area(self.x1, self.x2, self.y1, self.y2),
-                other.rectangular_area(other.x1, other.x2, other.y1, other.y2)
-            )
-            niou = intersection_area / min_area
-
-        return niou
+        niou = 0
+        try:
+            if self.is_overlapping(other):
+                intersection_area = self.intersection(other)
+                min_area = min(
+                    self.rectangular_area(self.x1, self.x2, self.y1, self.y2),
+                    other.rectangular_area(other.x1, other.x2, other.y1, other.y2)
+                )
+                niou = intersection_area / min_area
+            return niou
+        except:
+            return math.nan
 
     def is_overlapping(self, other: BBox):
         """Checks if this BBox is overlapping the another
@@ -181,4 +183,4 @@ class BBox:
                     and self.y1 < other.y2
                     and other.x1 < self.x2
                     and other.y1 < self.y2)
-        return False
+        raise Exception("Some bounding box was not detected")
