@@ -8,9 +8,9 @@ from typing import Tuple
 import torch
 import math
 
-
-THIS_FILE = Path(__file__)
+THIS_FILE = Path(__file__).resolve()
 THIS_DIR = THIS_FILE.parent
+ROOT = THIS_FILE.parents[2]
 
 # Read config file
 CFG_FILE = THIS_DIR.parent / "detect.cfg"
@@ -18,8 +18,8 @@ PARSER = ConfigParser()
 PARSER.read(CFG_FILE)
 
 # Configs
-YOLO_PATH = PARSER.get("yolov5", "path")
-MODEL_WEIGHTS = PARSER.get("yolov5", "weights")
+YOLO_REPO = "ultralytics/yolov5:v6.2"  # currently this is the latest version we tested
+MODEL_WEIGHTS = ROOT/PARSER.get("yolov5", "weights")
 MODEL_SIZE = PARSER.getint("model", "size")
 
 
@@ -35,10 +35,10 @@ def load_model(conf_th=0.75, iou_th=0.45):
     """
     # Model
     model = torch.hub.load(
-        repo_or_dir=YOLO_PATH,
+        repo_or_dir=YOLO_REPO,
         model="custom",
         path=MODEL_WEIGHTS,
-        source="local"
+        source="github"
     )
     model.conf = conf_th
     model.iou = iou_th
