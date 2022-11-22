@@ -8,7 +8,7 @@ from copy import deepcopy
 from therapy_aid_tool.models.toddler import Toddler
 from therapy_aid_tool.models.video import VideoBuilder
 
-from streamlit_app.st_controll import (
+from st_controll import (
     VIDEOS_DIR,
     save_user_video,
     video_fp_from_toddler_date,
@@ -18,11 +18,12 @@ from streamlit_app.st_controll import (
 
 # ==================================================
 # Page configs
-TITLE = "Interactive Event Detection"
+TITLE = "Results from upload"
 
 st.set_page_config(
     page_title=TITLE,
-    layout="centered")
+    layout="centered",
+    page_icon="🎥")
 
 st.title(TITLE)
 st.markdown(

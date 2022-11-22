@@ -17,7 +17,7 @@ from therapy_aid_tool.DAOs.video_dao import VideoDAO
 from therapy_aid_tool.DAOs.session_dao import SessionDAO
 
 
-ROOT = Path(__file__).parents[1].resolve()
+ROOT = Path(__file__).parents[0].resolve()
 
 DATABASE_DIR = ROOT/"database"
 DATABASE = DATABASE_DIR/"sessions.db"

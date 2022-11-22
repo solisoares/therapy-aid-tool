@@ -5,7 +5,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-from streamlit_app.st_controll import (
+from st_controll import (
     get_session,
     toddlers_names,
     dates_from_name,
@@ -18,7 +18,8 @@ TITLE = "Results from Database"
 
 st.set_page_config(
     page_title=TITLE,
-    layout="centered")
+    layout="centered",
+    page_icon="🗄️")
 
 st.title(TITLE)
 st.markdown(

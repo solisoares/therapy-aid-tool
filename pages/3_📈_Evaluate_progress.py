@@ -1,6 +1,6 @@
 import streamlit as st
 
-from streamlit_app.st_controll import (
+from st_controll import (
     toddlers_names,
     plot_sessions_progress
 )
@@ -11,7 +11,8 @@ TITLE = "Evaluate Toddler's Progress"
 
 st.set_page_config(
     page_title=TITLE,
-    layout="centered")
+    layout="centered",
+    page_icon="📈")
 
 st.title(TITLE)
 st.markdown(
