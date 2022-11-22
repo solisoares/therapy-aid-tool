@@ -8,6 +8,9 @@ from typing import Tuple
 import torch
 import math
 
+import requests
+
+
 THIS_FILE = Path(__file__).resolve()
 THIS_DIR = THIS_FILE.parent
 ROOT = THIS_FILE.parents[2]
@@ -23,6 +26,32 @@ MODEL_WEIGHTS = ROOT/PARSER.get("yolov5", "weights")
 MODEL_SIZE = PARSER.getint("model", "size")
 
 
+def download_weights(save_location: Path):
+    """Download pre trained weights from `therapy-aid-nn` v1.0.0 repo release
+
+    The name of the weights to download is the filename content in the `save_location`
+    All the weights available are in the keys of the `urls` dictionary bellow
+
+    Args:
+        save_location (Path): Location to save the weights
+    """
+    weights_name = save_location.name
+
+    urls = {
+        "full1-yolov5m-img256-bs1.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5m-img256-bs1.pt",
+        "full1-yolov5m-img512-bs1.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5m-img512-bs1.pt",
+        "full1-yolov5n6-img1280-bs1.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5n6-img1280-bs1.pt",
+        "full1-yolov5s-img256-bs1.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5s-img256-bs1.pt",
+        "full1-yolov5s-img512-bs16.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5s-img512-bs16.pt",
+        "full1-yolov5s-img640-bs1.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5s-img640-bs1.pt",
+        "full1-yolov5x-img256-bs1.pt": "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/full1-yolov5x-img256-bs1.pt",
+    }
+
+    req = requests.get(urls[weights_name])
+    with open(save_location, "wb") as f:
+        f.write(req.content)
+
+
 def load_model(conf_th=0.75, iou_th=0.45):
     """Loads the best trained model
 
@@ -33,6 +62,10 @@ def load_model(conf_th=0.75, iou_th=0.45):
     Returns:
         _type_: _description_
     """
+    # Download weights if they do not exist already
+    if not MODEL_WEIGHTS.is_file():
+        download_weights(MODEL_WEIGHTS)
+
     # Model
     model = torch.hub.load(
         repo_or_dir=YOLO_REPO,
@@ -162,7 +195,8 @@ class BBox:
                 intersection_area = self.intersection(other)
                 min_area = min(
                     self.rectangular_area(self.x1, self.x2, self.y1, self.y2),
-                    other.rectangular_area(other.x1, other.x2, other.y1, other.y2)
+                    other.rectangular_area(
+                        other.x1, other.x2, other.y1, other.y2)
                 )
                 niou = intersection_area / min_area
             return niou
