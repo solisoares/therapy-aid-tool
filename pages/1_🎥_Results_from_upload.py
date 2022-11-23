@@ -96,6 +96,7 @@ if user_video:
     ax.vlines(0, 0, 1)
     ax.vlines(len(x), 0, 1)
     ax.yaxis.set_ticks([])
+    ax.xaxis.set_ticks([])
     ax.set_title(title, {'fontsize': 10})
     st.pyplot(fig)
     st.markdown("#")
