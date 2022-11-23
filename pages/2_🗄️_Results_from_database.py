@@ -5,12 +5,20 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
+from therapy_aid_tool.DAOs._create_db_squema import create_schema
+
 from st_controll import (
     get_session,
     toddlers_names,
     dates_from_name,
-    dates_from_name
+    dates_from_name,
+    DATABASE,
 )
+
+
+# ==================================================
+# Try to create database and squema if this is the first page openned
+create_schema(DATABASE)
 
 # ==================================================
 # Page configs

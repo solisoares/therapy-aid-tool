@@ -1,5 +1,7 @@
 import streamlit as st
 
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
@@ -7,6 +9,7 @@ from copy import deepcopy
 # TODO: avoid using any Model or DAO in the View
 from therapy_aid_tool.models.toddler import Toddler
 from therapy_aid_tool.models.video import VideoBuilder
+from therapy_aid_tool.DAOs._create_db_squema import create_schema
 
 from st_controll import (
     VIDEOS_DIR,
@@ -14,7 +17,13 @@ from st_controll import (
     video_fp_from_toddler_date,
     add_session,
     toddlers_names,
+    DATABASE,
 )
+
+
+# ==================================================
+# Try to create database and squema if this is the first page openned
+create_schema(DATABASE)
 
 # ==================================================
 # Page configs

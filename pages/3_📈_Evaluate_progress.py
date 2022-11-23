@@ -1,9 +1,19 @@
 import streamlit as st
 
+from pathlib import Path
+
+from therapy_aid_tool.DAOs._create_db_squema import create_schema
+
 from st_controll import (
     toddlers_names,
-    plot_sessions_progress
+    plot_sessions_progress,
+    DATABASE,
 )
+
+
+# ==================================================
+# Try to create database and squema if this is the first page openned
+create_schema(DATABASE)
 
 # ==================================================
 # Page configs
