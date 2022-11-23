@@ -61,7 +61,7 @@ td_pm = np.array(video.closeness['td_pm'])
 ct_pm = np.array(video.closeness['ct_pm'])
 
 y_closeness = td_ct  # default
-title = None
+title = "Toddler-Caretaker"
 if button_td_ct:
     y_closeness = td_ct
     title = "Toddler-Caretaker"

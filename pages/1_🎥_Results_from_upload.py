@@ -69,7 +69,7 @@ if user_video:
     # ==================================================
     # Choose what type of closeness to plot
     type = "td_ct"  # default
-    title = None
+    title = "Toddler-Caretaker"
     if button_td_ct:
         type = "td_ct"
         title = "Toddler-Caretaker"
