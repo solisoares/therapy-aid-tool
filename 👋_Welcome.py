@@ -1,7 +1,13 @@
 # This is the entrypoint for Streamlit
 # Run with `streamlit run 👋_Welcome.py`
-
 import streamlit as st
+
+from pathlib import Path
+
+from therapy_aid_tool.DAOs._create_db_squema import create_schema
+
+ROOT = Path(__file__).parent
+DATABASE = ROOT/"database"/"sessions.db"
 
 # Page configs
 st.set_page_config(
@@ -63,3 +69,5 @@ With the use of Artificial Inteligence and Computer Vision our app is capable of
     * Summary of interactions in each session.
     * Progress of interactions for all sessions.
 """)
+
+create_schema(DATABASE)

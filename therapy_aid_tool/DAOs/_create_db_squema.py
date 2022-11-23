@@ -38,13 +38,16 @@ def _create_schema(database):
 def create_schema(database):
     database = Path(database)
     if not database.is_file():
+        with open(database, "wb"):  # create db file
+            pass
         _create_schema(database)
-    else:
-        raise Exception(
-            f"\n{'----'*25}\n--> Database '{database}' already exists. <--\n{'----'*25}\n")
 
 
 if __name__ == "__main__":
     ROOT = Path(__file__).parents[2].resolve()
     DATABASE = ROOT/"database/sessions.db"
-    create_schema(DATABASE)
+    if DATABASE.is_file():
+        print(
+            f"\n{'----'*25}\n--> Database '{DATABASE}' already exists. <--\n{'----'*25}\n")
+    else:
+        create_schema(DATABASE)
