@@ -20,6 +20,12 @@ st.markdown(
 st.markdown("---")
 
 # ==================================================
+# Quick check for empty database
+if not toddlers_names():
+    st.info("Please, add a therapy session to the database first! :)")
+    st.stop()
+
+# ==================================================
 # SelectBox ::: Choose the toddler
 st.markdown("##### Choose the toddler")
 toddler_name = st.selectbox("", toddlers_names())

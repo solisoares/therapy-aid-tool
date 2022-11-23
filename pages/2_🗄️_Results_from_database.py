@@ -28,6 +28,12 @@ st.markdown(
 st.markdown("---")
 
 # ==================================================
+# Quick check for empty database
+if not toddlers_names():
+    st.info("Please, add a therapy session to the database first! :)")
+    st.stop()
+
+# ==================================================
 # Choose session based on toddler and Date
 st.markdown("##### Session information")
 col1, col2 = st.columns(2)
