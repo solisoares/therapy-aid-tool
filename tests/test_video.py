@@ -1,9 +1,13 @@
 from therapy_aid_tool.models.video import VideoBuilder
+from pathlib import Path
+
+
+ROOT = Path(__file__).parents[1].resolve()
 
 
 def test_frames_count():
     # This video has 33 frames
-    filepath = "/home/alexandre/therapy-aid-tool/sample_data/quick_video_plusme.mp4"
+    filepath = str(ROOT/"sample_data/quick_video_plusme.mp4")
     video = VideoBuilder(filepath).build()
 
     closeness = video.closeness
