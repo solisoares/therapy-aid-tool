@@ -15,7 +15,7 @@ The main goal is to provide a web aplication that is capable of filtering out re
 * Assistance in clinical and therapeutic decisions throughout interactive search and statistical reports.
     * Summary of interactions in each session.
     * Progress of interactions for all sessions.
-> Our BRACIS [Paper](https://link.springer.com/content/pdf/10.1007/978-3-031-21689-3.pdf?pdf=button#page=243)
+> Our BRACIS [Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17)
 
 <br>
 
