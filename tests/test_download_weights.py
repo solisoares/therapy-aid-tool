@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1].resolve()
 
 
-def test_download_weights_from_google_drive():
+def test_download_weights_from_gh_release1():
     download_weights(ROOT/"full1-yolov5x-img256-bs1.pt")
     download_weights(ROOT/"full1-yolov5s-img256-bs1.pt")
     download_weights(ROOT/"full1-yolov5s-img512-bs16.pt")
