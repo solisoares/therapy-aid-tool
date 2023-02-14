@@ -1,13 +1,22 @@
 from therapy_aid_tool.models.video import VideoBuilder
 from pathlib import Path
-
+import requests
 
 ROOT = Path(__file__).parents[1].resolve()
 
 
+def download_quick_video():
+    url = "https://github.com/solisoares/therapy-aid-nn/releases/download/v1.0.0/quick_video_plusme.mp4"
+    response = requests.get(url)
+    with open(ROOT/"quick_video_plusme.mp4", "wb") as f:
+        f.write(response.content)
+
+
 def test_frames_count():
+    download_quick_video()
+
     # This video has 33 frames
-    filepath = str(ROOT/"sample_data/quick_video_plusme.mp4")
+    filepath = str(ROOT/"quick_video_plusme.mp4")
     video = VideoBuilder(filepath).build()
 
     closeness = video.closeness
@@ -18,3 +27,5 @@ def test_frames_count():
 
     assert frames_count1 == 33
     assert frames_count2 == 33
+
+    Path(ROOT/"quick_video_plusme.mp4").unlink()
