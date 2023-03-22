@@ -5,18 +5,29 @@
 <p align="center">(The current version of this project aims to assist in decision making of Autism Spectrum Disorder (ASD) video sessions)</p>
 <br>
 
-## How our app can help in treatment?
+## :thought_balloon: How our app can help in treatment?
 The main goal is to provide a web aplication that is capable of filtering out relevant scenes of recorded therapy sessions to assist professionals in their analysis. With the use of Artificial Inteligence and Computer Vision our app is capable of:
 
-* Handle large amounts of therapy session videos, storing and retrieving them as needed.
+* Handle large amounts of therapy session videos, storing and retrieving them as needed.<br>
+    > :zap: Quickly store and access sessions with patient name and date.
 * Filter relevant scenes according to medical professionals.
-    * Point exactly in time where is happening an event of interest in the video.
-    * Reduce time for analysis of a whole video.
+    * Point exactly in time where is happening an event of interest in the video. <br>
+      > :zap: YouTube-like timeline of interactions
+      
+    * Reduce time for analysis of a whole video. <br>
+      > :zap: In our test set we got an analysis time reduction from 9% to 90%. <br>
+      > :zap: It means that a 60min therapy session can be converted to a 54min to 6min of manual analysis. <br>
+      > :zap: This can be achieved by balancing Precision x Recall through the changing of internal configurations. <br>
+      
 * Assistance in clinical and therapeutic decisions throughout interactive search and statistical reports.
     * Summary of interactions in each session.
-    * Progress of interactions for all sessions.
-> Our BRACIS [Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17)
+    * Progress of interactions for all sessions. <br> <br>
+      > :zap: Getting sense of the patient's progress through interactions can aid in decision making.
+<br>
+<br>
 
+> Preliminar Studies: [BRACIS Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
+> Undergrad Thesis (pt-br): _comming soon_
 <br>
 
 ## Current technologies and heuristics used
