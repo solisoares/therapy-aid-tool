@@ -50,7 +50,7 @@ We trained several YOLOv5 models in our sibling repo [therapy-aid-nn](https://gi
 
 <br>
 
-## :mag: App Overview
+## :mag_right: App Overview
 When the user uploads a video of a therapy session, YOLO do its magic and we generate statistical reports and a timeline of interactions in a "YouTube" style. Then the user can add the processed session to the database by providing a patient name and date. With more than one session added into the database for a patient, reports of progress are made.
 
 <p align="center">
