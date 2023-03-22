@@ -30,7 +30,7 @@ The main goal is to provide a web aplication that is capable of filtering out re
 > Undergrad Thesis (pt-br): _comming soon_
 <br>
 
-## Current technologies and heuristics used
+## 📝 Current technologies and heuristics used
 
 ### Core
 * For the task of object detection we use a [YOLOv5](https://github.com/ultralytics/yolov5) trained deep learning model. YOLO detects where the main actors of a therapy session are by generating bounding boxes (bboxes) around each one of them. For our **current version**, the main actors of a **ASD therapy session** are the *Toddler*, *Caretaker* and the interactive teddy bear called [*PlusMe*](https://dl.acm.org/doi/pdf/10.1145/3491101.3519716?casa_token=iWYoiTNsB90AAAAA:x8TOj1oPpZoqyLTIV3FUw1yAIFTEnD_roG12wpDYmsIsg6JVSIjzj4whC2ky2Pj7oSv4GAU3FyX3).
@@ -50,7 +50,7 @@ We trained several YOLOv5 models in our sibling repo [therapy-aid-nn](https://gi
 
 <br>
 
-## App Overview
+## :mag: App Overview
 When the user uploads a video of a therapy session, YOLO do its magic and we generate statistical reports and a timeline of interactions in a "YouTube" style. Then the user can add the processed session to the database by providing a patient name and date. With more than one session added into the database for a patient, reports of progress are made.
 
 <p align="center">
@@ -60,7 +60,7 @@ When the user uploads a video of a therapy session, YOLO do its magic and we gen
 </p>
 <br>
 
-## Getting Started
+## 👋 Getting Started
 You're gonna need [Python](https://www.python.org/) (3.8 or higher), [Pip](), [Git](https://git-scm.com/) (if you're gonna clone the repo) and a `Web Browser`.
 > :zap: To perform detection tasks we recommend a GPU with more than 4Gb VRAM
 
