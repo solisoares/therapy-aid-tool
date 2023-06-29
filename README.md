@@ -31,6 +31,10 @@ The main goal is to provide a web aplication that is capable of filtering out re
 > Undergrad Thesis (pt-br): _comming soon_
 <br>
 
+## ▶️ Quick demonstration video
+> https://www.youtube.com/watch?v=S3w9jncUsQc
+<br>
+
 ## 📝 Current technologies and heuristics used
 
 ### Core
