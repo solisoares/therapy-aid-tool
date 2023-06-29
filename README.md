@@ -78,7 +78,7 @@ git clone https://github.com/solisoares/therapy-aid-tool.git
 Then install requirements:</br>
 ```bash
 cd therapy-aid-tool
-pip install -e .  # or `pip install -r requirements.txt`
+pip install -e .
 ```
 
 ### Default Usage
