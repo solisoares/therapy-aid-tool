@@ -26,7 +26,8 @@ The main goal is to provide a web aplication that is capable of filtering out re
 <br>
 <br>
 
-> Preliminar Studies: [BRACIS Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
+> Publication 1 (Springer): [BRACIS Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
+> Publication 2 (Free/Open): [Computer on the Beach Periodical](https://periodicos.univali.br/index.php/acotb/article/view/19507/11309) <br>
 > Undergrad Thesis (pt-br): _comming soon_
 <br>
 
