@@ -5,8 +5,8 @@
 <p align="center">(The current version of this project aims to assist in decision making of Autism Spectrum Disorder (ASD) video sessions)</p>
 <br>
 
-## :thought_balloon: How our app can help in treatment?
-The main goal is to provide a web aplication that is capable of filtering out relevant scenes of recorded therapy sessions to assist professionals in their analysis. With the use of Artificial Inteligence and Computer Vision our app is capable of:
+## :thought_balloon: How this app can help in treatment?
+The main goal is to provide a web aplication that is capable of filtering out relevant scenes of recorded therapy sessions to assist professionals in their analysis. With the use of Artificial Inteligence and Computer Vision this app is capable of:
 
 * Handle large amounts of therapy session videos, storing and retrieving them as needed.<br>
     > :zap: Quickly store and access sessions with patient name and date.
@@ -15,7 +15,7 @@ The main goal is to provide a web aplication that is capable of filtering out re
       > :zap: YouTube-like timeline of interactions
       
     * Reduce time for analysis of a whole video. <br>
-      > :zap: In our test set we got an analysis time reduction from 9% to 90%. <br>
+      > :zap: In this test set we got an analysis time reduction from 9% to 90%. <br>
       > :zap: It means that a 60min therapy session can be converted to a 54min to 6min of manual analysis. <br>
       > :zap: This can be achieved by balancing Precision x Recall through the changing of internal configurations. <br>
       
@@ -24,11 +24,11 @@ The main goal is to provide a web aplication that is capable of filtering out re
     * Progress of interactions for all sessions. <br> <br>
       > :zap: Getting sense of the patient's progress through interactions can aid in decision making.
 <br>
-<br>
 
-> Publication 1 (Springer): [BRACIS Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
-> Publication 2 (Free/Open): [Computer on the Beach Periodical](https://periodicos.univali.br/index.php/acotb/article/view/19507/11309) <br>
-> Undergrad Thesis (pt-br): _comming soon_
+## 📰 Publications
+* Publication 1 (Springer): [BRACIS Paper](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
+* Publication 2 (Free/Open): [Computer on the Beach Periodical](https://periodicos.univali.br/index.php/acotb/article/view/19507/11309) <br>
+* Undergrad Thesis (Free/Open - pt-br): [A Tool to aid Autism Spectrum Disorder therapies using Machine Learning](https://repositorio.ufsc.br/bitstream/handle/123456789/248134/tcc-alexandre-soli-soares.pdf)
 <br>
 
 ## ▶️ Quick demonstration video
@@ -38,7 +38,7 @@ The main goal is to provide a web aplication that is capable of filtering out re
 ## 📝 Current technologies and heuristics used
 
 ### Core
-* For the task of object detection we use a [YOLOv5](https://github.com/ultralytics/yolov5) trained deep learning model. YOLO detects where the main actors of a therapy session are by generating bounding boxes (bboxes) around each one of them. For our **current version**, the main actors of a **ASD therapy session** are the *Toddler*, *Caretaker* and the interactive teddy bear called [*PlusMe*](https://dl.acm.org/doi/pdf/10.1145/3491101.3519716?casa_token=iWYoiTNsB90AAAAA:x8TOj1oPpZoqyLTIV3FUw1yAIFTEnD_roG12wpDYmsIsg6JVSIjzj4whC2ky2Pj7oSv4GAU3FyX3).
+* For the task of object detection we use a [YOLOv5](https://github.com/ultralytics/yolov5) trained deep learning model. YOLO detects where the main actors of a therapy session are by generating bounding boxes (bboxes) around each one of them. For this **current version**, the main actors of a **ASD therapy session** are the *Toddler*, *Caretaker* and the interactive teddy bear called [*PlusMe*](https://dl.acm.org/doi/pdf/10.1145/3491101.3519716?casa_token=iWYoiTNsB90AAAAA:x8TOj1oPpZoqyLTIV3FUw1yAIFTEnD_roG12wpDYmsIsg6JVSIjzj4whC2ky2Pj7oSv4GAU3FyX3).
 
 * These bboxes provide actors' location in the frame, and through the level of intersection (a flavor of IoU) of these bboxes we get a sense of how close they are to each other (closeness) and predict if an interaction is occuring.
 
@@ -48,7 +48,7 @@ The main goal is to provide a web aplication that is capable of filtering out re
   * The total time of interactions (also minimun, maximum and mean time).
 
 ### App
-Currently we use the [Streamlit](https://github.com/streamlit/streamlit) Framework to glue together our detections and processings, our database in [SQLite](https://www.sqlite.org/index.html) and our CRUD operations. With Streamlit's easy to use aproach you can quicly spin up your own local server and render your app.
+Currently we use the [Streamlit](https://github.com/streamlit/streamlit) Framework to glue together this detections and processings, this database in [SQLite](https://www.sqlite.org/index.html) and this CRUD operations. With Streamlit's easy to use aproach you can quicly spin up your own local server and render your app.
 
 ### Trained models
 We trained several YOLOv5 models in our sibling repo [therapy-aid-nn](https://github.com/solisoares/therapy-aid-nn). You can find the models and a sample video in the [v1.0.0](https://github.com/solisoares/therapy-aid-nn/releases/tag/v1.0.0) release.  The default for this app is the small model on a 256x256 image size.  
