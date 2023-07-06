@@ -27,7 +27,7 @@ The main goal is to provide a web aplication that is capable of filtering out re
 
 ## 📰 Publications
 * Publication 1 (BRACIS Paper - Springer): [Event Detection in Therapy Sessions for Children with Autism](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
-* Publication 2 (Computer on the Beach Periodical - Free/Open): [](https://periodicos.univali.br/index.php/acotb/article/view/19507/11309) <br>
+* Publication 2 (Computer on the Beach Periodical - Free/Open): [Event detection in therapy sessions for children with Autism](https://periodicos.univali.br/index.php/acotb/article/view/19507/11309) <br>
 * Undergrad Thesis (Free/Open - pt-br): [A Tool to aid Autism Spectrum Disorder therapies using Machine Learning](https://repositorio.ufsc.br/bitstream/handle/123456789/248134/tcc-alexandre-soli-soares.pdf)
 <br>
 
