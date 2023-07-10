@@ -79,7 +79,7 @@ Then install requirements:</br>
 ```bash
 cd therapy-aid-tool
 python -m venv venv
-source venv/
+source venv/bin/activate
 pip install -e .
 ```
 
