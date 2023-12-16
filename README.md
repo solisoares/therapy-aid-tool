@@ -5,6 +5,19 @@
 <p align="center">(The current version of this project aims to assist in decision making of Autism Spectrum Disorder (ASD) video sessions)</p>
 <br>
 
+# Table of Contents
+* [How this app can help in treatment?](#how-can-help)
+* [Publications](#pubs)
+* [Quick demonstration video](#demo)
+* [Current technologies and heuristics used](#techs)
+* [App Overview](#overview)
+* [Getting Started](#starting)
+  * [Installation](#install)
+  * [Default Usage](#default-usage)
+  * [Custom Usage](#custom-usage)
+
+
+<a name="how-can-help"></a>
 ## :thought_balloon: How this app can help in treatment?
 The main goal is to provide a web aplication that is capable of filtering out relevant scenes of recorded therapy sessions to assist professionals in their analysis. With the use of Artificial Inteligence and Computer Vision this app is capable of:
 
@@ -25,16 +38,19 @@ The main goal is to provide a web aplication that is capable of filtering out re
       > :zap: Getting sense of the patient's progress through interactions can aid in decision making.
 <br>
 
+<a name="pubs"></a>
 ## 📰 Publications
 * Publication 1 (BRACIS Paper - Springer): [Event Detection in Therapy Sessions for Children with Autism](https://link.springer.com/chapter/10.1007/978-3-031-21689-3_17) <br>
 * Publication 2 (Computer on the Beach Periodical - Free/Open): [Event detection in therapy sessions for children with Autism](https://periodicos.univali.br/index.php/acotb/article/view/19507/11309) <br>
 * Undergrad Thesis (Free/Open - pt-br): [A Tool to aid Autism Spectrum Disorder therapies using Machine Learning](https://repositorio.ufsc.br/bitstream/handle/123456789/248134/tcc-alexandre-soli-soares.pdf)
 <br>
 
+<a name="demo"></a>
 ## ▶️ Quick demonstration video
 > https://www.youtube.com/watch?v=S3w9jncUsQc
 <br>
 
+<a name="techs"></a>
 ## 📝 Current technologies and heuristics used
 
 ### Core
@@ -55,6 +71,7 @@ We trained several YOLOv5 models in our sibling repo [therapy-aid-nn](https://gi
 
 <br>
 
+<a name="overview"></a>
 ## :mag_right: App Overview
 When the user uploads a video of a therapy session, YOLO do its magic and we generate statistical reports and a timeline of interactions in a "YouTube" style. Then the user can add the processed session to the database by providing a patient name and date. With more than one session added into the database for a patient, reports of progress are made.
 
@@ -65,10 +82,12 @@ When the user uploads a video of a therapy session, YOLO do its magic and we gen
 </p>
 <br>
 
+<a name="starting"></a>
 ## 👋 Getting Started
 You're gonna need [Python](https://www.python.org/) (3.8 or higher), [Pip](), [Git](https://git-scm.com/) (if you're gonna clone the repo) and a `Web Browser`.
 > :zap: To perform detection tasks we recommend a GPU with more than 4Gb VRAM
 
+<a name="install"></a>
 ### Installation
 Clone this repo (or download the zip file):</br>
 ```bash
@@ -82,7 +101,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -e .
 ```
-
+<a name="default-usage"></a>
 ### Default Usage
 This will run the app with the small YOLO model that can be used with a decent cpu.
 ```bash
@@ -92,6 +111,7 @@ streamlit run 👋_Welcome.py
 
 This will start a local `Streamlit` server and the app will open in a new tab in your default web browser (we recommend Chromium based browsers).
 
+<a name="custom-usage"></a>
 ### Custom Usage
 To change which YOLOv5 model and image size you want to make detections with, adjust the `detect.cfg` file accordingly.  
   
