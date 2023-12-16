@@ -12,10 +12,13 @@
 * [Current technologies and heuristics used](#techs)
 * [App Overview](#overview)
 * [Getting Started](#starting)
+  * [Firefox Issue :warning:](#firefox-issue)
   * [Installation](#install)
   * [Default Usage](#default-usage)
   * [Custom Usage](#custom-usage)
+ 
 
+<br>
 
 <a name="how-can-help"></a>
 ## :thought_balloon: How this app can help in treatment?
@@ -84,7 +87,10 @@ When the user uploads a video of a therapy session, YOLO do its magic and we gen
 
 <a name="starting"></a>
 ## 👋 Getting Started
-You're gonna need [Python](https://www.python.org/) (3.8 or higher), [Pip](), [Git](https://git-scm.com/) (if you're gonna clone the repo) and a `Web Browser`.
+You're gonna need [Python](https://www.python.org/) (3.8 or higher), [Pip](), [Git](https://git-scm.com/) (if you're gonna clone the repo) and a `Chromium-based Web Browser`.
+<a name="firefox-issue"></a>
+> :warning: Use Chromium-based browsers. In this v1.0.0, the timeline rendering occurs *bellow* the video playback, and not *inside* above the loading bar like YouTube does. Streamlit in Chromium-based browsers create the loading bar accross the whole video window, so the rendered timeline can be nicelly stretched. This is a visualization issue for Firefox for example, where the loading bar is just a section of the whole window lenght.
+
 > :zap: To perform detection tasks we recommend a GPU with more than 4Gb VRAM
 
 <a name="install"></a>
