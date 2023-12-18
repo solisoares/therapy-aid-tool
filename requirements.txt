@@ -1,7 +1,7 @@
 # Explicit requirements file for Streamlit
 # This file is a copy of setup.cfg requirements
 
-streamlit
+streamlit>=1.26.0
 matplotlib>=3.2.2
 numpy>=1.18.5
 opencv-python>=4.1.1
@@ -17,3 +17,5 @@ seaborn>=0.11.0
 ipython  # interactive notebook
 psutil  # system utilization
 thop>=0.1.1  # FLOPs computation
+labelbox>=3.58.1
+stqdm>=0.0.5

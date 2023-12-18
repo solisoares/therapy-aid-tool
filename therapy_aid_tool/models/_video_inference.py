@@ -10,10 +10,10 @@ import math
 
 import requests
 
-
 THIS_FILE = Path(__file__).resolve()
 THIS_DIR = THIS_FILE.parent
 ROOT = THIS_FILE.parents[2]
+MODELS_DIR = ROOT / "models"
 
 # Read config file
 CFG_FILE = THIS_DIR.parent / "detect.cfg"
@@ -21,10 +21,10 @@ PARSER = ConfigParser()
 PARSER.read(CFG_FILE)
 
 # Configs
-YOLO_REPO = "ultralytics/yolov5:v6.2"  # currently this is the latest version we tested
-MODEL_WEIGHTS = ROOT/PARSER.get("yolov5", "weights")
-MODEL_SIZE = PARSER.getint("model", "size")
-
+YOLO_VERSION = "v7.0"
+YOLO_REPO = "ultralytics/yolov5:"+YOLO_VERSION  # currently this is the latest version we tested
+DEFAULT_MODEL_WEIGHTS = ROOT / PARSER.get("yolov5", "weights")
+DEFAULT_MODEL_SIZE = PARSER.getint("model", "size")
 
 def download_weights(save_location: Path):
     """Download pre trained weights from `therapy-aid-nn` v1.0.0 repo release
@@ -52,75 +52,96 @@ def download_weights(save_location: Path):
         f.write(req.content)
 
 
-def load_model(conf_th=0.75, iou_th=0.45):
+def load_model(user_model_name:str=DEFAULT_MODEL_WEIGHTS, conf_th=0.75, iou_th=0.45):
     """Loads the best trained model
 
     Args:
-        conf_th (float, optional): _description_. Defaults to 0.75.
-        iou_th (float, optional): _description_. Defaults to 0.45.
+        user_model_name (str, optional): Used with custom weights. Name of the model to be loaded.
+        conf_th (float, optional): Defaults to 0.75.
+        iou_th (float, optional): Defaults to 0.45.
 
     Returns:
-        _type_: _description_
+        _type_: Model loaded.
+        int: Size of the image used in finetuning of model loaded.
     """
-    # Download weights if they do not exist already
-    if not MODEL_WEIGHTS.is_file():
-        download_weights(MODEL_WEIGHTS)
+    model_weights = ""
+    model_size = 0
+    model = None
+    if user_model_name == DEFAULT_MODEL_WEIGHTS:
+        model_weights = user_model_name
+        model_size = DEFAULT_MODEL_SIZE
+        # Download weights if they do not exist already
+        if not model_weights.is_file():
+            download_weights(model_weights)
+    else: # Using custom weights
+        custom_parser = ConfigParser()
+        custom_parser.read(MODELS_DIR / user_model_name / "model_configs.cfg")
+        model_size = custom_parser.getint("model", "size")
+        model_weights = MODELS_DIR / user_model_name / "weights" / "best.pt"
 
     # Model
     model = torch.hub.load(
         repo_or_dir=YOLO_REPO,
         model="custom",
-        path=MODEL_WEIGHTS,
+        path=model_weights,
         source="github"
     )
     model.conf = conf_th
     model.iou = iou_th
-    return model
+    return (model, model_size)
 
-
-def preds_from_torch_results(results, n_classes):
-    """Return the best predictions for each clas from the torch results of a model
+def preds_from_torch_results(results, frame_width, frame_height):
+    """Return the best predictions for each clasS from the torch results of a model
 
     When a model runs on an image or a video frame, the `results` can return information about
-    x, y, w, h, conf & class values for each prediction made. For a normalized return we look at
-    the `results.xywhn` generated from the model tha comes in form of a List[Tensor].
+    xmin, ymin, xmax, ymax, confidence, class ID & class name values for each prediction made. For a not normalized return we look at
+    the `results.pandas().xyxy[0]` generated from the model that comes in form of a Pandas dataframe.
 
-    This function gets x, y, w, h, conf & class values for each prediction, and for each class,
-    return the prediction with highest conf score.
+    This function gets xmin, ymin, xmax, ymax, confidence, class ID & class name values for each prediction, and, for each class,
+    returns the normalized values of x, y, w, h & confidence of the predictions with highest conf score. The classes considered are 
+    'toddler', 'caretaker', and 'plusme', and the values for each class are given in this same order.
 
-    results.xywhn example output:
+    results.pandas().xyxy[0] example output:
 
-                     x        y        w        h       conf     class
-                 -----------------------------------------------------
-        [tensor([[0.50623, 0.75267, 0.24268, 0.44551, 0.89929, 0.00000],
-                 [0.72019, 0.65559, 0.28206, 0.54527, 0.86348, 1.00000],
-                 [0.60743, 0.81043, 0.08960, 0.21956, 0.83557, 2.00000]],
-                 device='cuda:0')]
+              xmin        ymin         xmax         ymax      confidence   class    name  
+        0  247.064941  418.516083   805.068726  1037.818359    0.937590      0     toddler 
+        1  517.709351  422.175903   751.586731   766.561584    0.909404      2     plusme
+        2  575.854736   40.794495  1591.923706   843.149048    0.899090      1     caretaker
 
     Args:
-        results: Torch predictions for a frame
-        n_classes (int): Number of classes. Used to create template for lacking predictions
+        results: Torch predictions for a frame.
+        frame_width: The width of the frame in which predictions were made.
+        frame_height: The height of the frame in which predictions were made.
 
     Returns:
-        list: Predictions for each class. Key, Value = class, [x,y,w,h,conf] | None
-            Example: [(0, [x, y, w, h, conf]), (1, [x, y, w, h, conf]), (2, None), ...]
+        list: Predictions for each class (['toddler','caretaker','plusme'], in this order). Key, Value = class, [x,y,w,h,conf] | None
+            Example: [('toddler', [x, y, w, h, conf]), ('caretaker', [x, y, w, h, conf]), ('plusme', None)]
     """
-    # Get predictions as list of lists
-    preds = results.xywhn[0].tolist()
+
+    class_names = ['toddler','caretaker','plusme']
+
+    # Get predictions as a Pandas dataframe
+    preds = results.pandas().xyxy[0].values.tolist()
 
     # All class numbers initiate with a list with -inf values
-    preds_dict = {c: [[float("-inf")] * 5] for c in range(n_classes)}
+    preds_dict = {c: [[float("-inf")] * 5] for c in class_names}
 
-    # Separete predictions according to class number
-    for *xywhc, c in preds:
-        preds_dict[c].append(xywhc)
+    # Separate predictions according to class name
+    for pred in preds:
+        if pred[6] in class_names:
+            w = (pred[2]-pred[0]) / frame_width # (xmax-xmin) / frame_width
+            h = (pred[3]-pred[1]) / frame_height # (ymax-ymin) / frame_height
+            x = pred[0]/frame_width + w/2 # xmin/frame_widht + w/2
+            y = pred[1]/frame_height + h/2 # ymin/frame_height + h/2
+            conf = pred[4]
+            preds_dict[pred[6]].append([x,y,w,h,conf])
 
     # Get predictions with highest conf for each class
-    for c in range(n_classes):
-        preds_dict[c] = sorted(preds_dict[c], key=lambda x: x[-1])[-1]
+    for name in class_names:
+        preds_dict[name] = sorted(preds_dict[name], key=lambda x: x[-1])[-1]
         # the ones that still have -inf turn to None
-        if float("-inf") in preds_dict[c]:
-            preds_dict[c] = None
+        if float("-inf") in preds_dict[name]:
+            preds_dict[name] = None
 
     return list(preds_dict.items())
 

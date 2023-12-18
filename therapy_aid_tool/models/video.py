@@ -6,7 +6,6 @@ from itertools import groupby
 from therapy_aid_tool.models._video_inference import (
     load_model,
     preds_from_torch_results,
-    MODEL_SIZE,
     BBox,
 )
 
@@ -25,8 +24,9 @@ class VideoBuilder:
     n_classes: int = 3
     CLOSENESS_THRESHOLD: float = 0.6
 
-    def __init__(self, filepath: str) -> None:
+    def __init__(self, filepath: str, user_model:str="") -> None:
         self.__fp = filepath
+        self.__user_model = user_model
         self.__cap = cv2.VideoCapture(self.__fp)
         self.__total_frames = int(self.__cap.get(cv2.CAP_PROP_FRAME_COUNT))
         self.__fps = float(self.__cap.get(cv2.CAP_PROP_FPS))
@@ -59,14 +59,21 @@ class VideoBuilder:
                     'pm': [BBox0, BBox1, ...],
                     }
         """
-        model = load_model()
+        model = None
+        model_size = 0
+        if self.__user_model != "":
+            model, model_size = load_model(self.__user_model)
+        else:
+            model, model_size = load_model()
+        
         bbs = defaultdict(list)
 
         for i in range(self.__total_frames):
             _, frame = self.__cap.read()
-            inference = model(frame[:, :, ::-1], size=MODEL_SIZE)
+            frame_height, frame_width, _ = frame.shape
+            inference = model(frame[:, :, ::-1], size=model_size)
             preds = preds_from_torch_results(inference,
-                                             self.n_classes)  # returns three preds
+                                             frame_width, frame_height)  # returns pred for 'todler', 'caretaker', and 'plusme', in this order
 
             bbs["td"].append(BBox(preds[0]))
             bbs["ct"].append(BBox(preds[1]))
