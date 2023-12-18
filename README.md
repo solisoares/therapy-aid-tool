@@ -119,9 +119,13 @@ This will start a local `Streamlit` server and the app will open in a new tab in
 
 <a name="custom-usage"></a>
 ### Custom Usage
-To change which YOLOv5 model and image size you want to make detections with, adjust the `detect.cfg` file accordingly.  
+By default, Therapy Aid Tool uses a model fine-tunned from YOLOv5s model on a 256x256 image size, that can be accessed [here](https://github.com/solisoares/therapy-aid-nn/releases/tag/v1.0.0).
+
+To change which model you want to make detections with, there are three options:
+
+#### Adjust the `detect.cfg` file
   
-This file specifies the location of the model weights and the image size (it's recommended that the size is the same one YOLO was trained). You can generate new weights for your dataset or use the ones in the therapy-aid-nn v1.0.0 release (they are commented in the detect.cfg file)
+`detect.cfg` file specifies the location of the default model weights and the default image size (it's recommended that the size is the same one YOLO was trained). You can generate new weights for your dataset or use the ones in the therapy-aid-nn v1.0.0 release (they are commented in the detect.cfg file)
   
 In short, do this:
 
@@ -134,3 +138,14 @@ In short, do this:
     [model]
     size=<img-size>
     ```
+
+#### Load a dataset and fine-tune a YOLOv5 model within the app
+
+
+To fine-tune your own model, import your dataset in the app or download it directly from Labelbox, choose a name for your model, and train it in "Train" section. Simple like that!
+
+To use it, activate "Custom weights" in "Results from upload" section, and select your model. The image size used will be the same as used during fine-tunning of the model.
+
+#### Import a model pre trained with the app
+
+Also, your fine-tunned model can be exported and imported for usage in another computer.

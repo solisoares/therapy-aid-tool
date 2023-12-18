@@ -1,5 +1,3 @@
-from copy import deepcopy
-from pathlib import Path
 import streamlit as st
 
 import numpy as np
@@ -14,7 +12,6 @@ from st_controll import (
     dates_from_name,
     DATABASE,
 )
-
 
 # ==================================================
 # Try to create database and squema if this is the first page openned

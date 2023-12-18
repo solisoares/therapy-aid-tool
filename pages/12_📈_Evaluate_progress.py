@@ -1,7 +1,5 @@
 import streamlit as st
 
-from pathlib import Path
-
 from therapy_aid_tool.DAOs._create_db_squema import create_schema
 
 from st_controll import (
@@ -9,7 +7,6 @@ from st_controll import (
     plot_sessions_progress,
     DATABASE,
 )
-
 
 # ==================================================
 # Try to create database and squema if this is the first page openned
@@ -38,7 +35,7 @@ if not toddlers_names():
 # ==================================================
 # SelectBox ::: Choose the toddler
 st.markdown("##### Choose the toddler")
-toddler_name = st.selectbox("", toddlers_names())
+toddler_name = st.selectbox(" ", label_visibility="hidden", options=toddlers_names())
 
 # ==================================================
 # Images ::: Plot Sessions Progress
