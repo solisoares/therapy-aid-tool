@@ -49,8 +49,9 @@ The main goal is to provide a web aplication that is capable of filtering out re
 <br>
 
 <a name="demo"></a>
-## ▶️ Quick demonstration video
-> https://www.youtube.com/watch?v=S3w9jncUsQc
+## ▶️ Quick demonstration videos
+> Overview: https://www.youtube.com/watch?v=S3w9jncUsQc <br>
+> Train your model: https://youtu.be/tKdgpavOQ5I <br>
 <br>
 
 <a name="techs"></a>
